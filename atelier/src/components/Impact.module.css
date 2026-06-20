@@ -1,0 +1,260 @@
+.impactSection {
+  background-color: #000;
+  height: 300vh; /* gives scrolling distance */
+  position: relative;
+}
+
+.stickyWrapper {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 0;
+}
+
+.darkOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 11;
+  transition: opacity 0.1s ease-out; /* match scroll feel */
+}
+
+.headingArea {
+  text-align: center;
+  margin-bottom: 3.5rem;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+  letter-spacing: 0.15em;
+  border: 1px solid rgba(242, 85, 34, 0.4);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #ffffff;
+  max-width: 800px;
+  margin: 0 auto;
+  letter-spacing: -0.01em;
+}
+
+.horizontalTrack {
+  display: flex;
+  gap: 2.5rem;
+  padding: 0 10vw;
+  width: max-content;
+  will-change: transform;
+  transition: transform 0.1s ease-out; /* smooth lag */
+}
+
+.impactCard {
+  width: 330px;
+  height: 420px;
+  flex-shrink: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.impactCard:nth-child(odd) {
+  transform: translateY(-20px);
+}
+
+.impactCard:nth-child(even) {
+  transform: translateY(20px);
+}
+
+.impactCard:nth-child(odd):hover {
+  transform: translateY(-32px);
+}
+
+.impactCard:nth-child(even):hover {
+  transform: translateY(8px);
+}
+
+.cardInner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.impactCard:hover .cardImage {
+  transform: scale(1.05);
+  filter: grayscale(100%) contrast(1.1);
+}
+
+/* Top-right diagonal arrow icon */
+.arrowIndicator {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  z-index: 5;
+  transition: all 0.3s ease;
+}
+
+.impactCard:hover .arrowIndicator {
+  background: var(--text-primary);
+  color: #000;
+  border-color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+.arrowIndicator svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Featured Badge */
+.featuredBadge {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: var(--accent-orange);
+  color: #ffffff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 5;
+}
+
+.featuredIcon {
+  width: 12px;
+  height: 12px;
+}
+
+.crownDoodle {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 40px;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+  transition: opacity 0.4s ease;
+}
+
+.impactCard:hover .crownDoodle {
+  opacity: 0.85;
+  animation: floatDoodle 3s infinite alternate ease-in-out;
+}
+
+@keyframes floatDoodle {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(-2deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-5px) rotate(2deg);
+  }
+}
+
+.cardGradientOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  z-index: 2;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+  transition: opacity 0.4s ease;
+}
+
+.cardOrangeOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  z-index: 3;
+  background: linear-gradient(to top, rgba(242, 85, 34, 0.85) 0%, rgba(242, 85, 34, 0.35) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+}
+
+.impactCard:hover .cardOrangeOverlay {
+  opacity: 1;
+}
+
+/* Text info on bottom */
+.cardTextContent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem 1.75rem;
+  z-index: 4;
+  color: #ffffff;
+}
+
+.cardTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-heading);
+}
+
+.cardDescription {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+  .impactCard {
+    width: 300px;
+    height: 400px;
+  }
+}

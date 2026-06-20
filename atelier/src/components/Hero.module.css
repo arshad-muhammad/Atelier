@@ -1,0 +1,240 @@
+.heroSection {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8rem; /* space for absolute navbar */
+  padding-bottom: 6rem;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.backgroundGrid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  background-position: center center;
+  z-index: 1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+}
+
+.glowEffect {
+  position: absolute;
+  bottom: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(242, 85, 34, 0.12) 0%, rgba(242, 85, 34, 0.02) 60%, transparent 100%);
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.badge {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+  letter-spacing: 0.2em;
+  margin-bottom: 2rem;
+  font-family: var(--font-body);
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+  max-width: 950px;
+  color: #ffffff;
+}
+
+.outlineBox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 100px;
+  height: 5rem;
+  border: 1px solid rgba(242, 85, 34, 0.6);
+  border-radius: 4px;
+  background: rgba(242, 85, 34, 0.05);
+  vertical-align: middle;
+  padding: 0 1.5rem;
+}
+
+.cursor {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--accent-orange);
+  animation: blink 0.8s infinite;
+  font-weight: 300;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Corner handles to mimic the design tool look in screenshot */
+.outlineBox::before,
+.outlineBox::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-orange);
+  border: 1px solid #fff;
+  z-index: 5;
+}
+
+.outlineBox::before {
+  top: -3px;
+  left: -3px;
+  box-shadow: calc(100% + 6px) 0 0 var(--accent-orange); /* Simple styling trick */
+}
+
+/* Let's place the 4 handles manually for exact look */
+.outlineBox::before {
+  top: -3px;
+  left: -3px;
+  /* top-left handle */
+}
+
+.outlineBox::after {
+  bottom: -3px;
+  right: -3px;
+  /* bottom-right handle */
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 650px;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+  font-weight: 400;
+}
+
+.socialProof {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.avatarGroup {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  object-fit: cover;
+  margin-left: -8px;
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.proofText {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.orangeHighlight {
+  color: var(--accent-orange);
+  font-weight: 700;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-dark) 100%);
+  color: #ffffff;
+  padding: 1rem 2.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  box-shadow: 0 4px 20px rgba(242, 85, 34, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(242, 85, 34, 0.5);
+}
+
+.arrowIcon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.ctaButton:hover .arrowIcon {
+  transform: translateX(4px);
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+  .outlineBox {
+    height: 3.5rem;
+    min-width: 140px;
+    padding: 0 1rem;
+  }
+  .subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+  }
+  .socialProof {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 2rem;
+  }
+  .outlineBox {
+    height: 2.8rem;
+    min-width: 120px;
+    padding: 0 0.75rem;
+  }
+  .badge {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
+  }
+  .subtitle {
+    font-size: 1rem;
+  }
+}

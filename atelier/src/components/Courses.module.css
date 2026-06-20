@@ -1,0 +1,437 @@
+.coursesSection {
+  background-color: var(--section-light-bg);
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  padding: 8rem 0;
+  min-height: 100vh;
+  position: relative;
+  z-index: 10;
+  margin-top: -30px;
+  margin-bottom: -30px;
+  color: var(--section-light-text);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headerArea {
+  text-align: center;
+  margin-bottom: 4rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badgeWrapper {
+  margin-bottom: 1.5rem;
+}
+
+.badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+  letter-spacing: 0.15em;
+  border: 1px solid rgba(242, 85, 34, 0.4);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.mainTitle {
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #1a1a1a;
+  max-width: 800px;
+  margin-bottom: 2rem;
+  letter-spacing: -0.01em;
+}
+
+.exploreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent-orange-dark);
+  color: #ffffff;
+  padding: 0.85rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(204, 68, 26, 0.2);
+  transition: all 0.3s ease;
+}
+
+.exploreBtn:hover {
+  background: var(--accent-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(242, 85, 34, 0.3);
+}
+
+.exploreBtn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease;
+}
+
+.exploreBtn:hover svg {
+  transform: translateX(3px);
+}
+
+/* Sticky Stacked Cards Deck Layout */
+.cardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 5rem; /* Gap between cards before they stick */
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+  margin-top: 3.5rem;
+  padding-bottom: 5rem;
+}
+
+.courseCard {
+  position: sticky;
+  border-radius: 32px;
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  align-items: center;
+  padding: 2.25rem; /* Padding all around inside the card */
+  overflow: hidden;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+/* Alternate column structure for stacking visual balance */
+.courseCard:nth-child(odd) {
+  grid-template-columns: 46% 1fr;
+  gap: 3.5rem;
+}
+
+.courseCard:nth-child(even) {
+  grid-template-columns: 1fr 46%;
+  gap: 3.5rem;
+}
+
+.courseCard:hover {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* White Card Theme */
+.whiteCard {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.whiteCard .courseTitle {
+  color: #111111;
+}
+
+.whiteCard .courseDescription {
+  color: #555555;
+}
+
+
+.whiteCard .featureValue {
+  color: #111111;
+}
+
+.whiteCard .featureLabel {
+  color: #666666;
+}
+
+/* Orange Card Theme */
+.orangeCard {
+  background: linear-gradient(135deg, #d85025 0%, #ba3e16 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.orangeCard .courseTitle {
+  color: #ffffff;
+}
+
+.orangeCard .courseDescription {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+.orangeCard .featureIcon {
+  color: #ffffff;
+}
+
+.orangeCard .featureValue {
+  color: #ffffff;
+}
+
+.orangeCard .featureLabel {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Black Card Theme */
+.blackCard {
+  background: #09090a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.blackCard .courseTitle {
+  color: #ffffff;
+}
+
+.blackCard .courseDescription {
+  color: #a0a0a0;
+}
+
+
+.blackCard .featureIcon {
+  color: var(--accent-orange);
+}
+
+.blackCard .featureValue {
+  color: #ffffff;
+}
+
+.blackCard .featureLabel {
+  color: #a0a0a0;
+}
+
+.cardLeft {
+  position: relative;
+  height: 330px; /* contained height */
+  width: 100%;
+  background-color: #0d0d0d;
+  overflow: hidden;
+  border-radius: 20px; /* rounded corners on inner image container */
+}
+
+.mentorImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.realProductBadge {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  background: rgba(242, 85, 34, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 0.49rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+.cardRight {
+  padding: 0; /* padding handled by parent courseCard grid */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.courseTitle {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.015em;
+  font-family: var(--font-heading);
+}
+
+.courseDescription {
+  font-size: 1rem;
+  line-height: 1.55;
+  margin-bottom: 2rem;
+  opacity: 0.85;
+}
+
+/* Features badge row */
+.featuresList {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.featureIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.whiteCard .featureIcon {
+  background: #fff5f0;
+  color: var(--accent-orange);
+}
+
+.orangeCard .featureIcon {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.blackCard .featureIcon {
+  background: rgba(242, 85, 34, 0.15);
+  color: var(--accent-orange);
+}
+
+.featureIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.featureText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.featureValue {
+  font-size: 1.05rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.featureLabel {
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Price & Button Styling */
+.priceContainer {
+  margin-top: 1.75rem;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.priceLabel {
+  font-size: 1.25rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.priceValue {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  color: var(--accent-orange); /* vivid orange price highlight */
+}
+
+.orangeCard .priceValue {
+  color: #ffffff; /* white price on orange card */
+}
+
+.originalPrice {
+  font-size: 0.95rem;
+  text-decoration: line-through;
+  opacity: 0.5;
+  margin-left: 0.25rem;
+}
+
+.checkCourseBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 50px;
+  width: fit-content;
+  margin-top: 2rem;
+  transition: all 0.3s ease;
+  font-family: var(--font-body);
+}
+
+.orangeCard .checkCourseBtn {
+  background: #ffffff;
+  color: #d85025;
+}
+
+.orangeCard .checkCourseBtn:hover {
+  background: rgba(255, 255, 255, 0.92);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.orangeCard .checkCourseBtn svg {
+  color: #d85025;
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s ease;
+}
+
+.orangeCard .checkCourseBtn:hover svg {
+  transform: translateX(3px);
+}
+
+.blackCard .checkCourseBtn {
+  background: #ffffff;
+  color: #09090a;
+}
+
+.blackCard .checkCourseBtn:hover {
+  background: rgba(255, 255, 255, 0.92);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.blackCard .checkCourseBtn svg {
+  color: #09090a;
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s ease;
+}
+
+.blackCard .checkCourseBtn:hover svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 992px) {
+  .courseCard {
+    grid-template-columns: 1fr !important;
+    padding: 1.5rem !important;
+    gap: 2rem !important;
+  }
+  .cardLeft {
+    height: 280px;
+  }
+  .courseTitle {
+    font-size: 1.65rem;
+  }
+  .cardsList {
+    gap: 3.5rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainTitle {
+    font-size: 2rem;
+  }
+}
+

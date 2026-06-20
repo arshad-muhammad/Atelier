@@ -1,0 +1,290 @@
+.statsSection {
+  background-color: #000;
+  padding: 3rem 0 6rem 0;
+  position: relative;
+  z-index: 5;
+}
+
+.statsSection::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(242, 85, 34, 0.08) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.1fr 1.4fr;
+  grid-gap: 1.25rem;
+  width: 100%;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  border-right: 1px solid rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  padding: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 
+    0 10px 30px 0 rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-top-color: rgba(242, 85, 34, 0.4);
+  border-left-color: rgba(242, 85, 34, 0.4);
+  transform: translateY(-5px);
+  box-shadow: 
+    0 15px 40px 0 rgba(0, 0, 0, 0.7),
+    0 0 15px rgba(242, 85, 34, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Individual card settings */
+.communityCard {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  min-height: 220px;
+}
+
+.learnersCard {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  min-height: 220px;
+}
+
+.unlockCard {
+  grid-column: 1 / 3;
+  grid-row: 2 / 3;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.startLearningCard {
+  grid-column: 3 / 4;
+  grid-row: 1 / 3;
+  min-height: 460px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: radial-gradient(circle at top right, rgba(242, 85, 34, 0.08), #0d0d0d 60%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Card Header elements */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.iconContainer {
+  color: var(--accent-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconContainer svg {
+  width: 26px;
+  height: 26px;
+}
+
+.statCount {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.statTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.statDescription {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Unlock Card Styling */
+.unlockTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.unlockAvatarGroup {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.25rem;
+}
+
+.unlockAvatarGroup img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid #0d0d0d;
+  margin-left: -8px;
+  object-fit: cover;
+}
+
+.unlockAvatarGroup img:first-child {
+  margin-left: 0;
+}
+
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.toggleButton {
+  width: 70px;
+  height: 32px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-orange);
+  background: rgba(242, 85, 34, 0.05);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  position: relative;
+  cursor: pointer;
+}
+
+.toggleButton svg {
+  width: 20px;
+  height: 20px;
+  color: #ffffff;
+  background: var(--accent-orange);
+  border-radius: 50%;
+  padding: 3px;
+  position: absolute;
+  right: 4px;
+  transition: transform 0.3s ease;
+}
+
+.toggleButton:hover svg {
+  transform: scale(1.1);
+}
+
+/* Start Learning Card Styling */
+.startLearningHeader {
+  display: flex;
+  flex-direction: column;
+}
+
+.startLearningLabel {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+/* Group Image in Start Learning */
+.imageContainer {
+  margin: 1.5rem 0;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.groupImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.startLearningCard:hover .groupImage {
+  transform: scale(1.05);
+}
+
+.getInTouchBtn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--accent-orange);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.getInTouchBtn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease;
+}
+
+.getInTouchBtn:hover {
+  background: rgba(242, 85, 34, 0.1);
+  border-color: var(--accent-orange);
+  color: #ffffff;
+}
+
+.getInTouchBtn:hover svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 992px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .startLearningCard {
+    grid-column: 1 / 3;
+    grid-row: auto;
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .communityCard, .learnersCard, .unlockCard, .startLearningCard {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
