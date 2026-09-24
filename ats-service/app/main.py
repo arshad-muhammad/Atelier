@@ -16,19 +16,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger("ats.main")
 
+import asyncio
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifecycle manager: Pre-loads the BGE embedding model into memory once on startup."""
+    """Lifecycle manager: Warmed in background so the port binds immediately for Render/cloud port scanners."""
     logger.info("Initializing Atelier ATS Service...")
     logger.info(f"Target BGE model: {settings.MODEL_NAME} on device: {settings.DEVICE}")
 
-    # Load BGE model singleton into RAM
+    # Kick off model loading in background thread so uvicorn binds to the port immediately
     embedding_service = EmbeddingService.get_instance()
-    success = embedding_service.load_model()
-    if success:
-        logger.info("BGE Embedding model pre-warmed and ready in RAM.")
-    else:
-        logger.warning("BGE Embedding model could not be pre-warmed. Will attempt lazy-load on first request.")
+    loop = asyncio.get_running_loop()
+    loop.run_in_executor(None, embedding_service.load_model)
 
     yield
 

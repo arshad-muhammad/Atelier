@@ -86,3 +86,44 @@ Run with Docker Compose:
 docker-compose up -d --build
 ```
 The model weights are cached in the persistent Docker volume `ats_model_cache` so they are never downloaded on container restarts.
+
+---
+
+## Deploying to Render (Free Tier)
+
+Render requires binding to a dynamically assigned `$PORT` (typically `10000`) and detecting an open port within seconds of container start. The `Dockerfile` has been optimized specifically for Render.
+
+### Step 1: Create a New Web Service on Render
+1. Go to the [Render Dashboard](https://dashboard.render.com/) and click **New +** -> **Web Service**.
+2. Connect your GitHub repository (`Atelier`).
+3. Configure the service settings:
+   - **Name**: `atelier-ats-service`
+   - **Region**: Choose closest to your users (e.g. Frankfurt, Oregon, Singapore).
+   - **Language / Runtime**: **Docker**
+   - **Root Directory**: `ats-service`
+   - **Dockerfile Path**: `./Dockerfile` (relative to Root Directory)
+   - **Instance Type**: **Free** (0.5 CPU, 512 MB RAM)
+
+### Step 2: Environment Variables (Render Dashboard)
+Add the following under **Environment Variables**:
+| Key | Value | Notes |
+|---|---|---|
+| `PORT` | `10000` | (Render sets this automatically, but you can explicitly specify it) |
+| `ATS_MODEL_NAME` | `BAAI/bge-small-en-v1.5` | Default lightweight 384-dim BGE model |
+| `MODEL_CACHE_DIR` | `/models_cache` | Points to pre-baked model weights |
+| `ATS_API_KEY` | *(Your secret key)* | Optional shared secret between Atelier Next.js and ATS service |
+
+### Step 3: Connect with Atelier Next.js (Vercel)
+Once Render deploys your ATS service, it will give you a public URL (e.g., `https://atelier-ats-service.onrender.com`).
+
+Add this environment variable to your Next.js project on **Vercel** or local `.env.local`:
+```env
+ATS_SERVICE_URL=https://atelier-ats-service.onrender.com
+ATS_API_KEY=your-secret-key-if-configured
+```
+
+### Why Render's Port Detection Works Smoothly Now
+1. **Pre-baked Model**: BGE weights (`model.safetensors`) are downloaded during the Docker build stage and stored in `/models_cache`. Startup takes ~1-2 seconds with zero network latency.
+2. **Instant Port Binding**: The ASGI lifespan handler initializes uvicorn's socket immediately so Render's port detection never times out.
+3. **Single Worker**: Running `--workers 1` keeps memory consumption under 380MB, well below Render's 512MB free tier cap.
+

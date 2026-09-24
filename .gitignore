@@ -36,6 +36,7 @@ yarn-error.log*
 *-auth-keys.json
 *auth-keys*.json
 tinybird.json
+render.json
 
 # vercel
 .vercel
