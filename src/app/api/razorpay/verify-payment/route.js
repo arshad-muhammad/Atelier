@@ -22,9 +22,18 @@ export async function POST(request) {
       );
     }
 
+    const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+    if (!keySecret) {
+      console.error('RAZORPAY_KEY_SECRET is not configured on the server.');
+      return NextResponse.json(
+        { error: 'Server configuration error: payment verification key missing.' },
+        { status: 500 }
+      );
+    }
+
     // ─── HMAC Signature Verification ───
     // Razorpay generates a signature using: SHA256(order_id + "|" + payment_id, secret)
-    const expectedSignature = createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    const expectedSignature = createHmac('sha256', keySecret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
 

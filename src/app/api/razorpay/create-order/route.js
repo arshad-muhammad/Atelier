@@ -13,13 +13,17 @@ export async function POST(request) {
       );
     }
 
-    // Parse amount - strip "Rs. " prefix and commas, convert to paise (smallest unit)
+    // Parse amount - strip currency words/symbols like "Rs. ", "Rs", "₹", "INR", and commas, convert to paise
     let amountInPaise;
-    if (typeof amount === 'string') {
-      const cleaned = amount.replace(/[^0-9.]/g, '');
-      amountInPaise = Math.round(parseFloat(cleaned) * 100);
-    } else {
+    if (typeof amount === 'number') {
       amountInPaise = Math.round(amount * 100);
+    } else if (typeof amount === 'string') {
+      // Strip any prefix before the first digit (handles 'Rs. ', '₹', 'INR ', etc. without retaining the period from 'Rs.')
+      const cleaned = amount.replace(/^[^\d]+/, '').replace(/,/g, '').trim();
+      const parsed = parseFloat(cleaned);
+      amountInPaise = Math.round(parsed * 100);
+    } else {
+      amountInPaise = NaN;
     }
 
     if (isNaN(amountInPaise) || amountInPaise <= 0) {
@@ -29,20 +33,33 @@ export async function POST(request) {
       );
     }
 
+    const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+    const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+
+    if (!keyId || !keySecret) {
+      console.error('Razorpay credentials missing. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.');
+      return NextResponse.json(
+        { error: 'Razorpay payment gateway is not properly configured. Missing server credentials.' },
+        { status: 500 }
+      );
+    }
+
     const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+      key_id: keyId,
+      key_secret: keySecret,
     });
+
+    const receipt = `rcpt_${courseId}_${studentId}_${Date.now()}`.slice(0, 40);
 
     const order = await razorpay.orders.create({
       amount: amountInPaise,
       currency: currency || 'INR',
-      receipt: `atelier_${courseId}_${studentId}_${Date.now()}`,
+      receipt,
       notes: {
         courseId: String(courseId),
-        courseTitle: courseTitle || '',
+        courseTitle: String(courseTitle || '').slice(0, 255),
         studentId: String(studentId),
-        studentName: studentName || '',
+        studentName: String(studentName || '').slice(0, 255),
       },
     });
 
@@ -50,12 +67,13 @@ export async function POST(request) {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      keyId: process.env.RAZORPAY_KEY_ID,
+      keyId,
     });
   } catch (error) {
     console.error('Razorpay order creation failed:', error);
+    const detail = error?.error?.description || error?.message || 'Failed to create payment order.';
     return NextResponse.json(
-      { error: 'Failed to create payment order. Please check Razorpay credentials.' },
+      { error: detail },
       { status: 500 }
     );
   }

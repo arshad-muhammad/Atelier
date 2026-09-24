@@ -31,6 +31,18 @@ export default function CheckoutModal({ course, student, onClose, onSuccess }) {
       return;
     }
 
+    if (!student || !student.id) {
+      setErrorMsg('Student profile session not found. Please log in again to continue.');
+      setStatus('error');
+      return;
+    }
+
+    if (!course || !course.price) {
+      setErrorMsg('Course pricing details unavailable. Please refresh the page.');
+      setStatus('error');
+      return;
+    }
+
     setStatus('loading');
     setErrorMsg('');
 
@@ -45,7 +57,7 @@ export default function CheckoutModal({ course, student, onClose, onSuccess }) {
           courseId: course.id,
           courseTitle: course.title,
           studentId: student.id,
-          studentName: student.name,
+          studentName: student.name || 'Student',
         }),
       });
 
