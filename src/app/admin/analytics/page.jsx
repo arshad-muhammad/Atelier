@@ -16,6 +16,7 @@ export default function AdminAnalyticsDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState('');
   const [overviewData, setOverviewData] = useState(null);
+  const [trafficData, setTrafficData] = useState(null);
   const [userData, setUserData] = useState(null);
   const [learningData, setLearningData] = useState(null);
   const [assessmentData, setAssessmentData] = useState(null);
@@ -67,6 +68,10 @@ export default function AdminAnalyticsDashboard() {
         case 'overview':
           const ov = await fetchAnalytics('overview', refresh);
           if (ov) setOverviewData(ov);
+          break;
+        case 'traffic':
+          const td = await fetchAnalytics('traffic', refresh);
+          if (td) setTrafficData(td);
           break;
         case 'users':
           const ud = await fetchAnalytics('users', refresh);
@@ -189,6 +194,7 @@ export default function AdminAnalyticsDashboard() {
         <div className={styles.sectionTabs}>
           {[
             { id: 'overview', label: 'Overview' },
+            { id: 'traffic', label: 'Traffic & Visitors' },
             { id: 'users', label: 'User Analytics' },
             { id: 'learning', label: 'Learning Analytics' },
             { id: 'assessments', label: 'Assessment Analytics' },
@@ -275,6 +281,267 @@ export default function AdminAnalyticsDashboard() {
                 <div className={styles.metricValue} style={{ color: '#f59e0b' }}>₹{Number(overviewData.revenue).toLocaleString('en-IN')}</div>
                 <div className={styles.metricSubtext} style={{ color: '#f59e0b' }}>Gross platform volume</div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 2. TRAFFIC & VISITORS SECTION ── */}
+        {activeTab === 'traffic' && trafficData && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className={styles.metricsGrid}>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Total Page Views</div>
+                <div className={styles.metricValue}>{trafficData.totalPageViews}</div>
+                <div className={styles.metricSubtext}>Platform requests recorded</div>
+              </div>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Unique Visitors</div>
+                <div className={styles.metricValue} style={{ color: 'var(--accent-orange, #f25522)' }}>
+                  {trafficData.uniqueVisitors}
+                </div>
+                <div className={styles.metricSubtext}>Distinct IPs / Client Sessions</div>
+              </div>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Total Sessions</div>
+                <div className={styles.metricValue}>{trafficData.totalSessions}</div>
+                <div className={styles.metricSubtext}>Browser sessions tracked</div>
+              </div>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Live Active Now</div>
+                <div className={styles.metricValue} style={{ color: '#10b981', display: 'flex', alignItems: 'center' }}>
+                  <span className={styles.liveDot}></span>
+                  {trafficData.activeNow}
+                </div>
+                <div className={styles.metricSubtext} style={{ color: '#10b981' }}>Active within last 15 min</div>
+              </div>
+            </div>
+
+            {/* Geographic Distribution & Traffic Acquisition Grid */}
+            <div className={styles.chartGrid}>
+              {/* Geographic Breakdown */}
+              <div className={styles.tableCard}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div>
+                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: '#ffffff', margin: 0 }}>
+                      Geographic Visitor Distribution
+                    </h3>
+                    <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0 0' }}>
+                      Resolved from client IP &amp; geo-headers
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <div>
+                    <h4 style={{ fontSize: '0.8rem', color: 'var(--accent-orange, #f25522)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                      Top Countries
+                    </h4>
+                    {trafficData.countries.length === 0 ? (
+                      <div className={styles.emptyStateText}>No geo data recorded in selected window</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                        {trafficData.countries.slice(0, 6).map((c, i) => (
+                          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                              <span style={{ color: '#ffffff', fontWeight: 600 }}>{c.country}</span>
+                              <span style={{ color: 'rgba(255,255,255,0.6)' }}>{c.count} visits ({c.percentage}%)</span>
+                            </div>
+                            <div className={styles.progressBarTrack}>
+                              <div className={styles.progressBarFill} style={{ width: `${Math.max(c.percentage, 4)}%` }}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 style={{ fontSize: '0.8rem', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                      Top Cities
+                    </h4>
+                    {trafficData.cities.length === 0 ? (
+                      <div className={styles.emptyStateText}>No city data recorded</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                        {trafficData.cities.slice(0, 6).map((ct, i) => (
+                          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                              <span style={{ color: '#ffffff', fontWeight: 600 }}>{ct.city}</span>
+                              <span style={{ color: 'rgba(255,255,255,0.6)' }}>{ct.count} visits ({ct.percentage}%)</span>
+                            </div>
+                            <div className={styles.progressBarTrack}>
+                              <div className={styles.progressBarFill} style={{ width: `${Math.max(ct.percentage, 4)}%`, background: '#38bdf8' }}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Traffic Sources & Device Platforms */}
+              <div className={styles.tableCard}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div>
+                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: '#ffffff', margin: 0 }}>
+                      Acquisition Channels &amp; Devices
+                    </h3>
+                    <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0 0' }}>
+                      Referral origins, campaign UTMs &amp; devices
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <div>
+                    <h4 style={{ fontSize: '0.8rem', color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                      Traffic by Source / Referrer
+                    </h4>
+                    {trafficData.sources.length === 0 ? (
+                      <div className={styles.emptyStateText}>No referrer sources recorded</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                        {trafficData.sources.slice(0, 5).map((s, i) => (
+                          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                              <span style={{ color: '#ffffff', fontWeight: 600 }}>{s.source}</span>
+                              <span style={{ color: 'rgba(255,255,255,0.6)' }}>{s.count} visits ({s.percentage}%)</span>
+                            </div>
+                            <div className={styles.progressBarTrack}>
+                              <div className={styles.progressBarFill} style={{ width: `${Math.max(s.percentage, 4)}%`, background: '#10b981' }}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 style={{ fontSize: '0.8rem', color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                      Device Types &amp; Browsers
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                      {trafficData.devices.map((d, i) => (
+                        <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{d.device}</div>
+                          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff', marginTop: '2px' }}>{d.count}</div>
+                          <div style={{ fontSize: '0.65rem', color: '#f59e0b' }}>{d.percentage}%</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {trafficData.browsers.map((b, i) => (
+                        <span key={i} style={{ fontSize: '0.7rem', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.8)' }}>
+                          {b.browser}: <strong>{b.count}</strong> ({b.percentage}%)
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Visited Pages & Routes */}
+            <div className={styles.tableCard}>
+              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', marginBottom: '1rem', color: '#ffffff' }}>
+                Top Visited Pages &amp; Platform Routes
+              </h3>
+              <table className={styles.analyticsTable}>
+                <thead>
+                  <tr>
+                    <th>Page / Route Path</th>
+                    <th>Total Views</th>
+                    <th>Unique Visitors</th>
+                    <th>% of Site Traffic</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trafficData.topPages.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className={styles.emptyStateText}>
+                        No page views recorded in this period.
+                      </td>
+                    </tr>
+                  ) : (
+                    trafficData.topPages.map((p, idx) => (
+                      <tr key={idx}>
+                        <td style={{ fontFamily: 'monospace', color: '#38bdf8', fontWeight: 600 }}>{p.path}</td>
+                        <td style={{ fontWeight: 700, color: '#ffffff' }}>{p.views}</td>
+                        <td>{p.uniqueVisitors}</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div className={styles.progressBarTrack} style={{ maxWidth: '100px' }}>
+                              <div className={styles.progressBarFill} style={{ width: `${Math.max(p.percentage, 4)}%` }}></div>
+                            </div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{p.percentage}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Live Real-Time Visitor Activity Stream */}
+            <div className={styles.tableCard}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className={styles.liveDot}></span>
+                  Live Visitor Activity Stream
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+                  Chronological event stream
+                </span>
+              </div>
+              <table className={styles.analyticsTable}>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Path Visited</th>
+                    <th>Location (Country &amp; City)</th>
+                    <th>Device &amp; Browser</th>
+                    <th>Referrer Source</th>
+                    <th>Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trafficData.liveStream.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className={styles.emptyStateText}>
+                        No live visitor events captured yet. Telemetry will stream here as visitors browse the site.
+                      </td>
+                    </tr>
+                  ) : (
+                    trafficData.liveStream.map(evt => (
+                      <tr key={evt.id}>
+                        <td style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
+                          {new Date(evt.timestamp).toLocaleTimeString()}
+                        </td>
+                        <td style={{ fontFamily: 'monospace', color: '#38bdf8', fontWeight: 600 }}>
+                          {evt.path}
+                        </td>
+                        <td style={{ color: '#ffffff' }}>
+                          {evt.country} • {evt.city}
+                        </td>
+                        <td>
+                          {evt.device} / {evt.browser}
+                        </td>
+                        <td style={{ color: 'rgba(255,255,255,0.6)' }}>
+                          {evt.source}
+                        </td>
+                        <td>
+                          <span className={styles.badge} style={{ fontSize: '0.65rem' }}>
+                            {evt.role}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -553,25 +820,33 @@ export default function AdminAnalyticsDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {assessmentData.difficultQuestions.map(q => (
-                    <tr key={q.id}>
-                      <td style={{ fontWeight: 600, color: '#ffffff' }}>{q.title}</td>
-                      <td>{q.attempts}</td>
-                      <td style={{ color: '#10b981' }}>{q.correct}</td>
-                      <td style={{ color: '#ef4444' }}>{q.incorrect}</td>
-                      <td>
-                        <span style={{ fontWeight: 700, color: q.successRate < 50 ? '#ef4444' : '#10b981' }}>
-                          {q.successRate}%
-                        </span>
-                      </td>
-                      <td>{q.avgTimeSeconds}s</td>
-                      <td>
-                        <span className={q.successRate < 50 ? styles.statusBadgeFailed : styles.statusBadgeSuccess}>
-                          {q.successRate < 45 ? 'High Difficulty' : q.successRate < 65 ? 'Moderate Difficulty' : 'Standard'}
-                        </span>
+                  {assessmentData.difficultQuestions.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className={styles.emptyStateText}>
+                        No assessment attempts recorded yet. Real metrics will calculate when assessments are taken.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    assessmentData.difficultQuestions.map(q => (
+                      <tr key={q.id}>
+                        <td style={{ fontWeight: 600, color: '#ffffff' }}>{q.title}</td>
+                        <td>{q.attempts}</td>
+                        <td style={{ color: '#10b981' }}>{q.correct}</td>
+                        <td style={{ color: '#ef4444' }}>{q.incorrect}</td>
+                        <td>
+                          <span style={{ fontWeight: 700, color: q.successRate < 50 ? '#ef4444' : '#10b981' }}>
+                            {q.successRate}%
+                          </span>
+                        </td>
+                        <td>{q.avgTimeSeconds}s</td>
+                        <td>
+                          <span className={q.successRate < 50 ? styles.statusBadgeFailed : styles.statusBadgeSuccess}>
+                            {q.attempts === 0 ? 'No Attempts' : q.successRate < 45 ? 'High Difficulty' : q.successRate < 65 ? 'Moderate Difficulty' : 'Standard'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -624,16 +899,24 @@ export default function AdminAnalyticsDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {liveData.sessionBreakdown.map(s => (
-                    <tr key={s.id}>
-                      <td style={{ fontWeight: 600, color: '#ffffff' }}>{s.title}</td>
-                      <td>{s.registered}</td>
-                      <td style={{ color: '#10b981', fontWeight: 700 }}>{s.joined}</td>
-                      <td>{s.peak}</td>
-                      <td>{s.avgDurationMinutes} mins</td>
-                      <td style={{ color: '#38bdf8' }}>{s.recordingViews}</td>
+                  {liveData.sessionBreakdown.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className={styles.emptyStateText}>
+                        No live classroom sessions conducted yet. Mentor live sessions will display here.
+                      </td>
                     </tr>
-                  ))}
+                  ) : (
+                    liveData.sessionBreakdown.map(s => (
+                      <tr key={s.id}>
+                        <td style={{ fontWeight: 600, color: '#ffffff' }}>{s.title}</td>
+                        <td>{s.registered}</td>
+                        <td style={{ color: '#10b981', fontWeight: 700 }}>{s.joined}</td>
+                        <td>{s.peak}</td>
+                        <td>{s.avgDurationMinutes} mins</td>
+                        <td style={{ color: '#38bdf8' }}>{s.recordingViews}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -645,24 +928,24 @@ export default function AdminAnalyticsDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className={styles.metricsGrid}>
               <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Course Views</div>
+                <div className={styles.metricValue}>{paymentData.funnel?.[0]?.count ?? 0}</div>
+              </div>
+              <div className={styles.metricCard}>
                 <div className={styles.metricLabel}>Checkout Starts</div>
-                <div className={styles.metricValue}>{paymentData.checkoutStarts}</div>
+                <div className={styles.metricValue}>{paymentData.funnel?.[1]?.count ?? 0}</div>
               </div>
               <div className={styles.metricCard}>
                 <div className={styles.metricLabel}>Payment Attempts</div>
-                <div className={styles.metricValue}>{paymentData.paymentAttempts}</div>
+                <div className={styles.metricValue}>{paymentData.funnel?.[2]?.count ?? 0}</div>
               </div>
               <div className={styles.metricCard}>
                 <div className={styles.metricLabel}>Successful Payments</div>
-                <div className={styles.metricValue} style={{ color: '#10b981' }}>{paymentData.successfulPayments}</div>
+                <div className={styles.metricValue} style={{ color: '#10b981' }}>{paymentData.funnel?.[3]?.count ?? 0}</div>
               </div>
               <div className={styles.metricCard}>
                 <div className={styles.metricLabel}>Failed Payments</div>
                 <div className={styles.metricValue} style={{ color: '#ef4444' }}>{paymentData.failedPayments}</div>
-              </div>
-              <div className={styles.metricCard}>
-                <div className={styles.metricLabel}>Cancelled Payments</div>
-                <div className={styles.metricValue} style={{ color: '#f59e0b' }}>{paymentData.cancelledPayments}</div>
               </div>
               <div className={styles.metricCard}>
                 <div className={styles.metricLabel}>Total Revenue Generated</div>
@@ -677,17 +960,17 @@ export default function AdminAnalyticsDashboard() {
               </h3>
               <div className={styles.funnelWrapper}>
                 {paymentData.funnel.map((step, idx) => {
-                  const maxCount = paymentData.funnel[0].count;
-                  const pct = Math.max(Math.round((step.count / maxCount) * 100), 10);
+                  const maxCount = paymentData.funnel[0]?.count || 1;
+                  const pct = maxCount > 0 ? Math.max(Math.round((step.count / maxCount) * 100), step.count > 0 ? 8 : 0) : 0;
                   return (
                     <div key={idx} className={styles.funnelRow}>
-                      <span className={styles.funnelLabel}>{step.step}</span>
+                      <span className={styles.funnelLabel}>{step.stage || step.step}</span>
                       <div className={styles.funnelBarTrack}>
                         <div className={styles.funnelBarFill} style={{ width: `${pct}%` }}>
                           {step.count}
                         </div>
                       </div>
-                      <span className={styles.funnelRate}>{step.conversionRate}%</span>
+                      <span className={styles.funnelRate}>{step.conversionFromPrevious ?? step.conversionRate}%</span>
                     </div>
                   );
                 })}
@@ -731,21 +1014,29 @@ export default function AdminAnalyticsDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {systemData.slowestEndpoints.map((ep, idx) => (
-                      <tr key={idx}>
-                        <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{ep.route}</td>
-                        <td><span className={styles.statusBadgeSuccess}>{ep.method}</span></td>
-                        <td>{ep.avgLatencyMs}ms</td>
-                        <td style={{ color: '#f59e0b', fontWeight: 700 }}>{ep.p95Ms}ms</td>
+                    {systemData.slowestEndpoints.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className={styles.emptyStateText}>
+                          All endpoints operating within normal latency parameters (&lt;300ms).
+                        </td>
                       </tr>
-                    ))}
+                    ) : (
+                      systemData.slowestEndpoints.map((ep, idx) => (
+                        <tr key={idx}>
+                          <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{ep.route}</td>
+                          <td><span className={styles.statusBadgeSuccess}>{ep.method}</span></td>
+                          <td>{ep.avgLatencyMs}ms</td>
+                          <td style={{ color: '#f59e0b', fontWeight: 700 }}>{ep.p95Ms}ms</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
 
               <div className={styles.tableCard}>
                 <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', marginBottom: '1rem', color: '#ffffff' }}>
-                  Recent System Incidents & Errors
+                  Recent System Incidents &amp; Errors
                 </h3>
                 <table className={styles.analyticsTable}>
                   <thead>
@@ -757,16 +1048,24 @@ export default function AdminAnalyticsDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {systemData.recentErrors.map((err, idx) => (
-                      <tr key={idx}>
-                        <td style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                          {new Date(err.timestamp).toLocaleTimeString()}
+                    {systemData.recentErrors.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className={styles.emptyStateText}>
+                          Zero errors detected. All systems healthy.
                         </td>
-                        <td><span className={styles.statusBadgeFailed}>{err.type}</span></td>
-                        <td style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{err.route}</td>
-                        <td style={{ fontSize: '0.8rem' }}>{err.message}</td>
                       </tr>
-                    ))}
+                    ) : (
+                      systemData.recentErrors.map((err, idx) => (
+                        <tr key={idx}>
+                          <td style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
+                            {new Date(err.timestamp).toLocaleTimeString()}
+                          </td>
+                          <td><span className={styles.statusBadgeFailed}>{err.type}</span></td>
+                          <td style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{err.route}</td>
+                          <td style={{ fontSize: '0.8rem' }}>{err.message}</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

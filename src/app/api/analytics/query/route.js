@@ -3,6 +3,7 @@ import { verifyAdminSessionToken } from '@/utils/auth';
 import {
   getAnalyticsOverview,
   getUserAnalytics,
+  getTrafficAnalytics,
   getLearningAnalytics,
   getAssessmentAnalytics,
   getLiveAnalytics,
@@ -13,6 +14,7 @@ import {
 
 const ALLOWED_QUERY_TYPES = [
   'overview',
+  'traffic',
   'users',
   'learning',
   'assessments',
@@ -67,6 +69,9 @@ export async function GET(request) {
     switch (type) {
       case 'overview':
         result = await getAnalyticsOverview(filterOptions, forceRefresh);
+        break;
+      case 'traffic':
+        result = await getTrafficAnalytics(filterOptions, forceRefresh);
         break;
       case 'users':
         result = await getUserAnalytics(filterOptions, forceRefresh);

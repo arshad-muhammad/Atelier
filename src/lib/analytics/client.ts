@@ -152,13 +152,104 @@ export function trackPageView(pageName?: string, metadata: Record<string, any> =
   if (typeof window === 'undefined') return;
   const path = pageName || window.location.pathname;
 
+  // Detect Device Type
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk)/i.test(ua);
+  const deviceType = isTablet ? 'Tablet' : (isMobile ? 'Mobile' : 'Desktop');
+
+  // Detect Browser
+  let browser = 'Other';
+  if (/edg/i.test(ua)) browser = 'Edge';
+  else if (/chrome|crios/i.test(ua)) browser = 'Chrome';
+  else if (/firefox|fxios/i.test(ua)) browser = 'Firefox';
+  else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = 'Safari';
+  else if (/opr\//i.test(ua)) browser = 'Opera';
+
+  // Detect Operating System
+  let os = 'Other';
+  if (/windows/i.test(ua)) os = 'Windows';
+  else if (/macintosh|mac os x/i.test(ua)) os = 'macOS';
+  else if (/linux/i.test(ua)) os = 'Linux';
+  else if (/android/i.test(ua)) os = 'Android';
+  else if (/iphone|ipad|ipod/i.test(ua)) os = 'iOS';
+
+  // Detect Referrer & Domain Source
+  let rawReferrer = typeof document !== 'undefined' ? document.referrer : '';
+  let referrerDomain = 'Direct';
+  if (rawReferrer) {
+    try {
+      const url = new URL(rawReferrer);
+      const host = url.hostname.replace('www.', '').toLowerCase();
+      if (host.includes(window.location.hostname)) {
+        referrerDomain = 'Internal Navigation';
+      } else if (host.includes('google')) referrerDomain = 'Google';
+      else if (host.includes('linkedin')) referrerDomain = 'LinkedIn';
+      else if (host.includes('github')) referrerDomain = 'GitHub';
+      else if (host.includes('twitter') || host.includes('x.com')) referrerDomain = 'Twitter/X';
+      else if (host.includes('youtube')) referrerDomain = 'YouTube';
+      else if (host.includes('facebook') || host.includes('instagram')) referrerDomain = 'Meta';
+      else if (host.includes('whatsapp')) referrerDomain = 'WhatsApp';
+      else referrerDomain = host;
+    } catch (e) {
+      referrerDomain = 'Referral';
+    }
+  }
+
+  // Detect UTM Campaign Parameters
+  let utmSource = '';
+  let utmMedium = '';
+  let utmCampaign = '';
+  try {
+    const params = new URLSearchParams(window.location.search);
+    utmSource = params.get('utm_source') || '';
+    utmMedium = params.get('utm_medium') || '';
+    utmCampaign = params.get('utm_campaign') || '';
+  } catch (e) {}
+
+  // Timezone & Language
+  let timezone = '';
+  let language = '';
+  try {
+    timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    language = navigator.language || '';
+  } catch (e) {}
+
+  let screenResolution = '';
+  try {
+    screenResolution = `${window.screen.width}x${window.screen.height}`;
+  } catch (e) {}
+
   track('page_viewed', {
     source: path,
     metadata: {
       path,
-      title: document.title,
-      referrer: document.referrer,
+      title: typeof document !== 'undefined' ? document.title : '',
+      referrer: rawReferrer,
+      referrerDomain: utmSource || referrerDomain,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      deviceType,
+      browser,
+      os,
+      timezone,
+      language,
+      screenResolution,
       ...metadata
     }
   });
+
+  // If viewing a course page like /courses/1 or /courses/2, track course_viewed with courseId
+  if (path.startsWith('/courses/')) {
+    const parts = path.split('/');
+    const courseId = Number(parts[2]);
+    if (courseId && !isNaN(courseId)) {
+      track('course_viewed', {
+        courseId,
+        source: path,
+        metadata: { path, title: typeof document !== 'undefined' ? document.title : '' }
+      });
+    }
+  }
 }

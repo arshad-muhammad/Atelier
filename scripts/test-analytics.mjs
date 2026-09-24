@@ -6,7 +6,7 @@
 
 import { buildUniversalEvent, sanitizeMetadata, EVENT_REGISTRY } from '../src/lib/analytics/events.js';
 import { ANALYTICS_CONFIG } from '../src/lib/analytics/constants.js';
-import { trackServer, trackAudit, getAnalyticsOverview, getAuditLogs } from '../src/lib/analytics/server.js';
+import { trackServer, trackAudit, getAnalyticsOverview, getTrafficAnalytics, getAuditLogs } from '../src/lib/analytics/server.js';
 import { signAdminSession, verifyAdminSessionToken, signMentorSession } from '../src/utils/auth.js';
 
 let passedTests = 0;
@@ -161,6 +161,21 @@ async function runTestSuite() {
   assert(Array.isArray(auditLogs.data.logs), 'Audit logs query returns array of audit records');
   assert(auditLogs.data.logs.length > 0, 'Audit logs contains recorded audit operations');
   assert(auditLogs.data.logs[0].status === 'SUCCESS', 'Audit log has valid status');
+
+  // ── 7. TRAFFIC & VISITOR TELEMETRY QUERIES ──
+  console.log('\n🧪 7. Real Traffic & Visitor Telemetry');
+  const traffic = await getTrafficAnalytics({ range: '30d' }, true);
+  assert(traffic && traffic.data, 'Traffic query returns data structure');
+  assert(typeof traffic.data.totalPageViews === 'number', 'Contains numeric totalPageViews metric');
+  assert(typeof traffic.data.uniqueVisitors === 'number', 'Contains numeric uniqueVisitors metric');
+  assert(typeof traffic.data.totalSessions === 'number', 'Contains numeric totalSessions metric');
+  assert(Array.isArray(traffic.data.countries), 'Contains geographic countries breakdown');
+  assert(Array.isArray(traffic.data.cities), 'Contains geographic cities breakdown');
+  assert(Array.isArray(traffic.data.sources), 'Contains traffic acquisition sources');
+  assert(Array.isArray(traffic.data.devices), 'Contains device platform distribution');
+  assert(Array.isArray(traffic.data.browsers), 'Contains browser breakdown');
+  assert(Array.isArray(traffic.data.topPages), 'Contains top visited pages array');
+  assert(Array.isArray(traffic.data.liveStream), 'Contains live visitor stream array');
 
   console.log('\n======================================================');
   console.log(`   ALL TESTS PASSED: ${passedTests}/${totalTests} CHECKS VERIFIED ✅`);
