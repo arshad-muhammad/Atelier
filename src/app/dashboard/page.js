@@ -616,6 +616,38 @@ function lockedNode() {
           </button>
         </div>
 
+        {/* ATS Resume Checker card */}
+        <div className={styles.cardPanel} style={{ background: 'radial-gradient(circle at top right, rgba(242, 85, 34, 0.12) 0%, transparent 75%), #08080a', border: '1px solid rgba(242, 85, 34, 0.25)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
+            <h2 className={styles.cardTitle} style={{ margin: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" strokeWidth="2.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+              ATS Resume Checker
+            </h2>
+            <span style={{ fontSize: '0.68rem', fontWeight: '800', background: 'rgba(242, 85, 34, 0.15)', color: 'var(--accent-orange)', padding: '0.2rem 0.55rem', borderRadius: '12px', border: '1px solid rgba(242, 85, 34, 0.3)' }}>
+              FREE
+            </span>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: '1.5', marginBottom: '1.25rem' }}>
+            Scan your resume with our self-hosted BGE ATS scanner. Get compatibility score, keyword gap analysis, and recruiter insights.
+          </p>
+
+          <Link 
+            href="/resume-checker"
+            className={styles.onboardBtn} 
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none' }}
+          >
+            <span>Scan My Resume</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+
       </div>
 
       {/* Mentor Support slide-out Drawer overlay */}

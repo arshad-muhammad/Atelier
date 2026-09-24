@@ -14,6 +14,7 @@ Atelier is an enterprise-grade learning workbench and cohort management platform
 - **File Storage**: Private Telegram Bot API storage backend with zero client-exposed secrets
 - **Live Classroom**: Embedded Jitsi Meet WebRTC API with two-way audio, real-time in-room chat space, mentor screen sharing, and host moderation tools
 - **Payment Gateway**: [Razorpay Node SDK](https://razorpay.com/) (order creation & HMAC SHA-256 signature verification)
+- **ATS Resume Analyzer**: Dedicated Python FastAPI microservice with self-hosted open-source `BAAI/bge-small-en-v1.5` embeddings, PyMuPDF, python-docx, and multi-tier keyword taxonomy
 - **Animations & Smooth Scroll**: [GSAP](https://greensock.com/gsap/) & [Lenis](https://lenis.darkroom.engineering/)
 - **Authentication & Security**: Salted `scryptSync` cryptographic password hashing, timing-safe equality checks, JWT session tokens, and 15-minute brute-force lockout protection
 
@@ -25,6 +26,7 @@ Atelier is an enterprise-grade learning workbench and cohort management platform
 graph TD
     subgraph ClientLayer["Frontend Portals (React 19 / Next.js)"]
         PublicApp["Public Marketing & Catalog (/courses)"]
+        ResumeCheckerUI["ATS Resume Checker (/resume-checker)"]
         StudentDash["Student Workspace (/dashboard)"]
         MentorPortal["Mentor Portal (/mentor)"]
         AdminConsole["Admin Control Node (/admin)"]
@@ -36,6 +38,11 @@ graph TD
         SyllabusEngine["Mathematical Progress Engine"]
         TelegramStorage["Telegram Bot Storage Bridge"]
         RazorpayService["Payment Verification Node"]
+        ATSApiProxy["ATS Secure Proxy (/api/ats/analyze)"]
+    end
+
+    subgraph DedicatedServices["Dedicated Standalone Microservices"]
+        ATSService["Python FastAPI ATS Microservice\n• PyMuPDF / docx Parser\n• BGE-small-en-v1.5 Embeddings\n• Multi-Tier Keyword Matcher\n• Explainable Scoring Engine"]
     end
 
     subgraph ExternalServices["External Infrastructure"]
@@ -48,6 +55,8 @@ graph TD
         MySQL[(Atelier Relational Database)]
     end
 
+    ResumeCheckerUI -- "Multipart Upload" --> ATSApiProxy
+    ATSApiProxy -- "HTTP (x-api-key)" --> ATSService
     StudentDash -- "Polled every 25s" --> LiveService
     LiveService -- "Mounts WebRTC Room" --> JitsiMeet
     MentorPortal -- "Host Controls & Screen Share" --> JitsiMeet
@@ -242,6 +251,16 @@ erDiagram
 - Supports files up to **50 MB**.
 - All secrets remain on the server; the client interacts solely with sanitized Next.js proxy endpoints (`/api/files/[id]`, `/api/files/upload`).
 
+### 6. 🎯 Dedicated ATS Resume Analyzer (`/resume-checker`)
+- **100% Free & Open-Source**: Publicly accessible from the site footer and student dashboard.
+- **Local BGE Model (`BAAI/bge-small-en-v1.5`)**: Self-hosted local vector embeddings loaded once in memory via singleton manager; zero external paid AI API calls (no OpenAI, Gemini, Claude, Groq).
+- **Multi-Format Parsing**:
+  - PDF: PyMuPDF (`pymupdf`) layout, column, font, and table extraction.
+  - DOCX: `python-docx` paragraph, table, and header/footer inspection.
+- **Explainable Scoring Engine**: Computes the *Atelier Resume Compatibility Score* across Keyword Match (35 pts), Semantic Relevance (25 pts), Required Skills (20 pts), Resume Structure (10 pts), Formatting (5 pts), and Contact Info (5 pts).
+- **Deterministic Actionable Guidance**: Clear advice on bullet point metrics, layout corrections, and missing stack technologies without AI hallucinations.
+- **Isolated Python FastAPI Microservice**: Operates in `/ats-service` to ensure zero load or latency degradation on the Next.js server.
+
 ---
 
 ## 🚀 Environment Configuration
@@ -284,24 +303,80 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
+
+# ── 8. Dedicated ATS Resume Microservice (Python FastAPI) ──
+ATS_SERVICE_URL=http://127.0.0.1:8000
+ATS_API_KEY=atelier-ats-production-key-2026
 ```
+
+---
+
+## 🌐 Production Hosting Architecture: Is Vercel Hosting Fine?
+
+### Quick Answer:
+- **Next.js Frontend & Core API**: **YES**, Vercel hosting is **100% fine and recommended** for the Next.js application.
+- **ATS Resume Analyzer Service**: **NO**, the ATS Python service **CANNOT run on Vercel alone** and requires a container or VPS host.
+
+### Detailed Technical Breakdown:
+
+| Layer | Recommended Host | Why? |
+| :--- | :--- | :--- |
+| **Atelier Web App (Next.js 16)** | **Vercel** / AWS Amplify | Perfect for React 19 SSR, Edge routes, assets, and standard API proxying. |
+| **ATS Python Microservice** | **Render / Railway / Fly.io / VPS (DigitalOcean / Hetzner / AWS EC2)** | The BGE embedding model + PyTorch + PyMuPDF runtime is **~800MB–1.2GB**, far exceeding Vercel's 50MB–250MB serverless bundle limit. It also requires persistent RAM to keep the BGE model loaded for 100ms instant inferences. |
+
+### How It Works Together in Production:
+1. **Deploy Next.js on Vercel**: Connect your GitHub repository to Vercel.
+2. **Deploy ATS Microservice on Render / Railway / Fly.io / Docker VPS**:
+   - In your cloud dashboard, point to the `/ats-service` directory.
+   - Use the provided `Dockerfile` and `docker-compose.yml`.
+   - The service will download `BAAI/bge-small-en-v1.5` once and persist weights to a volume.
+   - Example live URL: `https://atelier-ats.onrender.com`
+3. **Configure Environment Variables in Vercel**:
+   ```env
+   ATS_SERVICE_URL=https://atelier-ats.onrender.com
+   ATS_API_KEY=your_secure_ats_key
+   ```
+4. **Result**: Your users visit `https://atelier.spherehive.com/resume-checker` on Vercel. When they upload a resume, Vercel securely proxies the request to your dedicated ATS service, keeping the main platform blazing fast.
 
 ---
 
 ## 🛠️ Getting Started
 
-### 1. Install Dependencies
+### 1. Install Node Dependencies
 ```bash
 npm install
 ```
 
-### 2. Launch Development Server
+### 2. Setup & Start Dedicated ATS Python Microservice
+```bash
+# Navigate to ats-service directory
+cd ats-service
+
+# Create virtual environment
+python -m venv venv
+
+# Windows
+.\venv\Scripts\activate
+# Linux/macOS
+# source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run pytest test suite (19 tests)
+pytest tests
+
+# Launch FastAPI ATS server on port 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+### 3. Launch Next.js Development Server
 ```bash
 npm run dev
 ```
 *Note: All MySQL database tables, composite indexes, and normalized syllabus seeds are initialized automatically upon launch.*
 
-### 3. Production Build & Verification
+### 4. Production Build & Verification
 ```bash
 npm run build
 npm run start
@@ -316,12 +391,14 @@ npm run start
 | **Admin Console** | `/admin` | Security Key: `ARSHAD-SAMVRUDHI`<br>Password: `noor` |
 | **Mentor Portal** | `/mentor/login` | Email: `mentor@atelier.io` (or any email registered by Admin)<br>Password: `mentor123` (Prompts password reset upon initial login) |
 | **Student Workspace** | `/auth/signin` | Email: `jane.doe@atelier.com`<br>Password: `password` |
+| **ATS Resume Checker** | `/resume-checker` | **Free Public Access** (No login required) |
 
 ---
 
 ## 🧭 Public Route & SEO Sitemap
 
 - `/` - Landing page with SEO metadata and educational organization JSON-LD schema
+- `/resume-checker` - Public ATS Resume Analyzer with local BGE embedding scoring & format audit
 - `/courses` - Cohort tracks catalog with category filters and search
 - `/courses/[id]` - Dynamic course details page with Course JSON-LD schema and OpenGraph previews
 - `/contact` - Admissions counseling and callback request form

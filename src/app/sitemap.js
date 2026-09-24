@@ -19,6 +19,12 @@ export default async function sitemap() {
       priority: 0.95,
     },
     {
+      url: `${siteUrl}/resume-checker`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
       url: `${siteUrl}/contact`,
       lastModified: now,
       changeFrequency: "weekly",

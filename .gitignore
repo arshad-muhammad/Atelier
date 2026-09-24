@@ -35,6 +35,7 @@ yarn-error.log*
 !.env.example
 *-auth-keys.json
 *auth-keys*.json
+tinybird.json
 
 # vercel
 .vercel
@@ -42,3 +43,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python & ats-service
+venv/
+**/venv/
+models_cache/
+**/models_cache/
+ats-service/venv/
+ats-service/models_cache/
+ats-service/.env
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+**/.pytest_cache/

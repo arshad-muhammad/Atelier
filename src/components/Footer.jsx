@@ -117,6 +117,7 @@ export default function Footer() {
           <div className={styles.linksCol}>
             <h4 className={styles.colTitle}>COMPANY</h4>
             <ul className={styles.linksList}>
+              <li><Link href="/resume-checker" className={styles.footerLink}>Resume Checker</Link></li>
               <li><Link href="/join-faculty" className={styles.footerLink}>Join Faculty & Mentors</Link></li>
               <li><Link href="/courses" className={styles.footerLink}>All Cohorts</Link></li>
               <li><Link href="/contact" className={styles.footerLink}>Hire From Us</Link></li>

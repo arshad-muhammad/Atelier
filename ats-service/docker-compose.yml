@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  ats-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atelier-ats-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ATS_MODEL_NAME=BAAI/bge-small-en-v1.5
+      - MODEL_CACHE_DIR=/models_cache
+      - ATS_DEVICE=cpu
+      - ATS_API_KEY=${ATS_API_KEY:-atelier-ats-production-key-2026}
+      - ENVIRONMENT=production
+    volumes:
+      # Persistent cache for BGE weights so model is never re-downloaded
+      - ats_model_cache:/models_cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ats_model_cache:
+    driver: local
