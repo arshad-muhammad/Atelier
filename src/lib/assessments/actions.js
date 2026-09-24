@@ -26,6 +26,7 @@ import {
 import { executeCode, executeSQL } from './sandbox.js';
 import { assertMentorOwnsCourse } from '@/utils/auth';
 import { query } from '@/utils/db-sql';
+import { trackServer } from '@/lib/analytics/server';
 
 // ─────────────────────────────────────────────────────────────
 // MENTOR ACTIONS (Strictly Scoped to Mentor's Assigned Course)
@@ -202,7 +203,15 @@ export async function getStudentAssessmentsAction(studentEmail, courseId = null)
 
 export async function startOrResumeStudentAttemptAction(studentEmail, assessmentId) {
   const student = await getStudentByEmail(studentEmail);
-  return await startOrResumeAttempt(student.id, assessmentId);
+  const result = await startOrResumeAttempt(student.id, assessmentId);
+  try {
+    trackServer('assessment_started', {
+      userId: student.id,
+      role: 'student',
+      assessmentId: Number(assessmentId)
+    });
+  } catch (e) {}
+  return result;
 }
 
 export async function getStudentAttemptPlayerAction(studentEmail, attemptId) {
@@ -217,13 +226,43 @@ export async function saveStudentAttemptProgressAction(studentEmail, attemptId, 
 
 export async function recordStudentProctoringAction(studentEmail, attemptId, eventType, metadata = null) {
   const student = await getStudentByEmail(studentEmail);
-  return await recordProctoringEvent(student.id, attemptId, eventType, metadata);
+  const result = await recordProctoringEvent(student.id, attemptId, eventType, metadata);
+  try {
+    const evtName = eventType === 'tab_switch' ? 'proctor_tab_switch' :
+                    eventType === 'blur' ? 'proctor_window_blur' :
+                    eventType === 'fullscreen_exit' ? 'proctor_fullscreen_exit' : `proctor_${eventType}`;
+    trackServer(evtName, {
+      userId: student.id,
+      role: 'student',
+      metadata: { attemptId, eventType, ...(metadata || {}) }
+    });
+  } catch (e) {}
+  return result;
 }
 
 export async function submitStudentAttemptAction(studentEmail, attemptId, finalResponses = null) {
   const student = await getStudentByEmail(studentEmail);
-  return await submitAssessmentAttempt(student.id, attemptId, finalResponses);
+  const result = await submitAssessmentAttempt(student.id, attemptId, finalResponses);
+  try {
+    trackServer('assessment_submitted', {
+      userId: student.id,
+      role: 'student',
+      metadata: {
+        attemptId,
+        score: result?.attempt?.total_score,
+        percentage: result?.attempt?.percentage,
+        passed: Boolean(result?.attempt?.passed)
+      }
+    });
+    if (result?.attempt?.passed) {
+      trackServer('assessment_passed', { userId: student.id, role: 'student', metadata: { attemptId } });
+    } else {
+      trackServer('assessment_failed', { userId: student.id, role: 'student', metadata: { attemptId } });
+    }
+  } catch (e) {}
+  return result;
 }
+
 
 export async function getStudentAttemptResultAction(studentEmail, attemptId) {
   const student = await getStudentByEmail(studentEmail);

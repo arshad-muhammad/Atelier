@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   getStudents, saveStudent, deleteStudent,
   getCourses, saveCourse, deleteCourse,
@@ -656,12 +657,33 @@ export default function AdminConsole() {
           <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: '800', fontSize: '1.2rem' }}>Atelier Server Node</h2>
           <span className={styles.adminBadge}>Admin Console</span>
         </div>
-        <button 
-          onClick={handleLogout}
-          style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', padding: '0.4rem 0.8rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
-        >
-          Exit Session
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link 
+            href="/admin/analytics" 
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              background: 'rgba(242, 85, 34, 0.12)', 
+              border: '1px solid rgba(242, 85, 34, 0.3)', 
+              color: 'var(--accent-orange, #f25522)', 
+              padding: '0.4rem 0.8rem', 
+              borderRadius: '4px', 
+              fontSize: '0.8rem', 
+              fontWeight: '700', 
+              textDecoration: 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span>Analytics Engine ↗</span>
+          </Link>
+          <button 
+            onClick={handleLogout}
+            style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', padding: '0.4rem 0.8rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
+          >
+            Exit Session
+          </button>
+        </div>
       </header>
 
       {/* Main Container */}
@@ -694,7 +716,15 @@ export default function AdminConsole() {
           <button className={`${styles.tabBtn} ${activeTab === 'lecturers' ? styles.tabBtnActive : ''}`} onClick={() => { setActiveTab('lecturers'); setSearchTerm(''); }}>Mentors ({lecturers.length})</button>
           <button className={`${styles.tabBtn} ${activeTab === 'payments' ? styles.tabBtnActive : ''}`} onClick={() => { setActiveTab('payments'); setSearchTerm(''); }}>Payments ({transactions.length})</button>
           <button className={`${styles.tabBtn} ${activeTab === 'assessments' ? styles.tabBtnActive : ''}`} onClick={() => { setActiveTab('assessments'); setSearchTerm(''); }}>Assessments ({adminAssessments.length})</button>
+          <Link 
+            href="/admin/analytics" 
+            className={styles.tabBtn}
+            style={{ color: 'var(--accent-orange, #f25522)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          >
+            Analytics ↗
+          </Link>
         </div>
+
 
         {/* Dynamic Metric Gauges */}
         <div className={styles.statsGrid}>

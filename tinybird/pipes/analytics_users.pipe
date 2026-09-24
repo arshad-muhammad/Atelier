@@ -1,0 +1,36 @@
+NODE users_summary
+DESCRIPTION "User demographic and activity metrics"
+SQL >
+    %
+    SELECT
+        uniqExact(user_id) as totalUsers,
+        countIf(event_name = 'user_signed_up') as newUsers,
+        uniqExactIf(user_id, timestamp >= today() - 7) as activeUsers,
+        countIf(role = 'student') as studentEvents,
+        countIf(role = 'mentor') as mentorEvents,
+        countIf(role = 'admin') as adminEvents
+    FROM atelier_events
+    WHERE 1=1
+    {% if defined(role) %}
+        AND role = {{ String(role) }}
+    {% end %}
+    {% if defined(start_date) %}
+        AND timestamp >= {{ DateTime(start_date) }}
+    {% end %}
+    {% if defined(end_date) %}
+        AND timestamp <= {{ DateTime(end_date) }}
+    {% end %}
+
+NODE daily_active_users_trend
+DESCRIPTION "Daily active users timeseries"
+SQL >
+    %
+    SELECT
+        toDate(timestamp) as day,
+        uniqExact(user_id) as active_users,
+        countIf(event_name = 'user_signed_up') as new_registrations,
+        uniqExact(session_id) as sessions
+    FROM atelier_events
+    WHERE timestamp >= today() - 30
+    GROUP BY day
+    ORDER BY day ASC

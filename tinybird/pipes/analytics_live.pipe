@@ -1,0 +1,27 @@
+NODE live_summary
+DESCRIPTION "Live interactive classroom metrics"
+SQL >
+    %
+    SELECT
+        uniqExact(live_session_id) as totalLiveSessions,
+        countIf(event_name = 'live_session_joined') as totalAttendanceEvents,
+        uniqExactIf(user_id, event_name = 'live_session_joined') as uniqueAttendees,
+        round(avgIf(cast(JSONExtractRaw(metadata, 'duration_minutes') as Float64), event_name = 'live_session_ended'), 1) as avgSessionDuration,
+        countIf(event_name = 'recording_opened') as recordingViews
+    FROM atelier_events
+    WHERE live_session_id IS NOT NULL
+
+NODE live_session_breakdown
+DESCRIPTION "Session-by-session live class breakdown"
+SQL >
+    %
+    SELECT
+        live_session_id,
+        countIf(event_name = 'live_session_viewed') as registered,
+        countIf(event_name = 'live_session_joined') as joined,
+        max(cast(JSONExtractRaw(metadata, 'peak_viewers') as Int64)) as peak,
+        round(avg(cast(JSONExtractRaw(metadata, 'duration_minutes') as Float64)), 1) as avgDuration,
+        countIf(event_name = 'recording_opened') as recordingViews
+    FROM atelier_events
+    WHERE live_session_id IS NOT NULL
+    GROUP BY live_session_id

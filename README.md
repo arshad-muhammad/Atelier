@@ -11,12 +11,14 @@ Atelier is an enterprise-grade learning workbench and cohort management platform
 - **Framework**: [Next.js 16.2.9](https://nextjs.org/) (App Router & Turbopack)
 - **UI Engine**: [React 19.2.4](https://react.dev/)
 - **Database**: MySQL 8.0+ via [`mysql2/promise`](https://github.com/sidorares/node-mysql2) connection pooling with idempotent migrations
+- **Real-Time Analytics & Audit**: [Tinybird](https://www.tinybird.co/) (Serverless ClickHouse) for high-throughput event streaming, non-blocking telemetry, and immutable admin audit trails (zero MySQL bloat)
 - **File Storage**: Private Telegram Bot API storage backend with zero client-exposed secrets
 - **Live Classroom**: Embedded Jitsi Meet WebRTC API with two-way audio, real-time in-room chat space, mentor screen sharing, and host moderation tools
 - **Payment Gateway**: [Razorpay Node SDK](https://razorpay.com/) (order creation & HMAC SHA-256 signature verification)
 - **ATS Resume Analyzer**: Dedicated Python FastAPI microservice with self-hosted open-source `BAAI/bge-small-en-v1.5` embeddings, PyMuPDF, python-docx, and multi-tier keyword taxonomy
 - **Animations & Smooth Scroll**: [GSAP](https://greensock.com/gsap/) & [Lenis](https://lenis.darkroom.engineering/)
 - **Authentication & Security**: Salted `scryptSync` cryptographic password hashing, timing-safe equality checks, JWT session tokens, and 15-minute brute-force lockout protection
+
 
 ---
 
@@ -29,7 +31,8 @@ graph TD
         ResumeCheckerUI["ATS Resume Checker (/resume-checker)"]
         StudentDash["Student Workspace (/dashboard)"]
         MentorPortal["Mentor Portal (/mentor)"]
-        AdminConsole["Admin Control Node (/admin)"]
+        AdminConsole["Admin Control Node (/admin & /admin/analytics)"]
+        ClientEventQueue["Client Event Queue (Batches 25-100 / Flush 5s)"]
     end
 
     subgraph ServiceLayer["Next.js Server Actions & API Routes"]
@@ -39,6 +42,7 @@ graph TD
         TelegramStorage["Telegram Bot Storage Bridge"]
         RazorpayService["Payment Verification Node"]
         ATSApiProxy["ATS Secure Proxy (/api/ats/analyze)"]
+        AnalyticsProxy["Analytics SDK & Proxy (/api/analytics)"]
     end
 
     subgraph DedicatedServices["Dedicated Standalone Microservices"]
@@ -49,6 +53,7 @@ graph TD
         JitsiMeet["Jitsi Meet WebRTC (Embedded Audio/Video/Screen Share)"]
         TelegramCloud["Telegram Bot API (File Chunks & Blobs)"]
         RazorpayAPI["Razorpay Payment Gateway"]
+        TinybirdCloud["Tinybird Cloud (Managed ClickHouse Analytics & Audit)"]
     end
 
     subgraph DatabaseLayer["MySQL Relational DB (localhost:3306)"]
@@ -66,8 +71,14 @@ graph TD
     TelegramStorage -- "Multipart Stream" --> TelegramCloud
     StudentDash -- "Enrolls & Pays" --> RazorpayService
     RazorpayService -- "Verifies Signature" --> RazorpayAPI
+    ClientLayer -- "Tracks User Actions" --> ClientEventQueue
+    ClientEventQueue -- "Batched Ingestion" --> AnalyticsProxy
+    ServiceLayer -- "Authoritative Events (Non-blocking)" --> AnalyticsProxy
+    AnalyticsProxy -- "NDJSON Stream (Bearer Token)" --> TinybirdCloud
+    AdminConsole -- "Query Aggregations (Cached 60s)" --> AnalyticsProxy
     ServiceLayer <--> MySQL
 ```
+
 
 ---
 
@@ -261,6 +272,31 @@ erDiagram
 - **Deterministic Actionable Guidance**: Clear advice on bullet point metrics, layout corrections, and missing stack technologies without AI hallucinations.
 - **Isolated Python FastAPI Microservice**: Operates in `/ats-service` to ensure zero load or latency degradation on the Next.js server.
 
+### 7. 📊 Production Analytics & Audit Logging Engine (Tinybird & ClickHouse)
+- **Zero MySQL Analytics Bloat**: All analytics telemetry and administrative audit trails are decoupled from MySQL and streamed into **Tinybird (ClickHouse)**. Primary application tables remain exclusively focused on transactional data.
+- **Fail-Safe & Non-Blocking**: Analytics dispatch uses non-blocking asynchronous execution with strict 4-second timeouts. If Tinybird is unreachable or in deployment, user requests, checkouts, and student operations proceed with zero latency penalty or failure.
+- **Central Analytics SDK (`@/lib/analytics`)**:
+  - `track(eventName, payload)`: Client-side event tracking.
+  - `trackServer(eventName, payload)`: Authoritative server-side event tracking.
+  - `trackAudit(auditPayload)`: Cryptographically isolated administrative mutation audit logging.
+- **Client Event Queue & Batching (`queue.ts`)**:
+  - In-memory event buffer automatically batches 25–100 events.
+  - Periodic flushes every 5 seconds.
+  - Automatically flushes on tab close or page visibility change using `navigator.sendBeacon` and `keepalive: true`.
+  - Exponential backoff retry logic for transient failures; bounds queue size (max 1000 events) to protect browser memory.
+- **Privacy by Default**: Central `sanitizeMetadata()` sanitization systematically scrubs passwords, JWT tokens, Bearer authorization headers, Razorpay secrets, and API keys before transmission.
+- **Dedicated Admin Analytics Console (`/admin/analytics`)**:
+  - Native integration with the existing `/admin` design language, dark aesthetic, and `AdminSecurityGuard` authorization.
+  - **Overview**: Real-time DAU, WAU, MAU, New Users, Active Sessions, Enrollments, Completions, Assessment Attempts, Avg Score, Verified Payments, and Gross Revenue.
+  - **User Analytics**: Total users, Students/Mentors/Admins breakdown, and interactive 14-day daily active user & session SVG timeseries charts.
+  - **Learning Analytics**: Course views, enrollments, completions, drop-off milestones (25%, 50%, 75%), topic completions, and course-by-course progress tables.
+  - **Assessment Analytics**: Total attempts, avg scores, pass/fail rates, avg completion time, auto-submissions, and question-level difficulty analysis.
+  - **Live Classroom**: Session counts, attendance volume, unique attendees, avg class duration, peak concurrent viewers, and replay views.
+  - **Payment & Funnel**: Checkout-to-enrollment conversion funnel (`Course View` → `Checkout` → `Payment` → `Enrollment`), failed payments, and revenue volume.
+  - **System & Health**: API requests, error rates, slow request warnings (>1000ms), slowest endpoints breakdown, and recent incident logs.
+  - **Forensic Audit Trail**: Real-time table of sensitive administrative actions (Admin Email, Action, Entity, Entity ID, Old Value, New Value, Status) with full search filtering.
+  - **Performance Caching**: 60-second in-memory query cache with manual **Refresh** control and "Last updated" timestamps.
+
 ---
 
 ## 🚀 Environment Configuration
@@ -307,7 +343,14 @@ GITHUB_CLIENT_SECRET=
 # ── 8. Dedicated ATS Resume Microservice (Python FastAPI) ──
 ATS_SERVICE_URL=http://127.0.0.1:8000
 ATS_API_KEY=atelier-ats-production-key-2026
+
+# ── 9. Tinybird ClickHouse Analytics & Audit System ──
+TINYBIRD_API_URL=https://api.europe-west2.gcp.tinybird.co
+TINYBIRD_API_KEY=your_tinybird_token_here
+TINYBIRD_DATA_SOURCE=atelier_events
+TINYBIRD_AUDIT_DATA_SOURCE=atelier_audit_events
 ```
+
 
 ---
 
@@ -382,6 +425,12 @@ npm run build
 npm run start
 ```
 
+### 5. Analytics & Audit Engine Verification
+```bash
+# Run comprehensive verification suite (34 automated checks verifying SDK, queues, pipes, sanitization, and fallback)
+node scripts/test-analytics.mjs
+```
+
 ---
 
 ## 🧪 Testing Credentials
@@ -389,6 +438,7 @@ npm run start
 | Portal | Route | Default Credentials |
 | :--- | :--- | :--- |
 | **Admin Console** | `/admin` | Security Key: `ARSHAD-SAMVRUDHI`<br>Password: `noor` |
+| **Admin Analytics Engine** | `/admin/analytics` | Security Key: `ARSHAD-SAMVRUDHI`<br>Password: `noor` (or seamless SSO from `/admin`) |
 | **Mentor Portal** | `/mentor/login` | Email: `mentor@atelier.io` (or any email registered by Admin)<br>Password: `mentor123` (Prompts password reset upon initial login) |
 | **Student Workspace** | `/auth/signin` | Email: `jane.doe@atelier.com`<br>Password: `password` |
 | **ATS Resume Checker** | `/resume-checker` | **Free Public Access** (No login required) |

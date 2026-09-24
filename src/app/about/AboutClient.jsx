@@ -498,7 +498,7 @@ export default function AboutClient() {
           <div className={`${styles.tiltedCard} ${styles.tiltedCard1}`}>
             <div className={styles.tiltedCardImageWrap}>
               <img
-                src="/images/campus_speaker.png"
+                src="/images/arshad.jpeg"
                 alt="Muhammad Arshad R A"
                 className={styles.tiltedCardImg}
               />
@@ -521,7 +521,7 @@ export default function AboutClient() {
           <div className={`${styles.tiltedCard} ${styles.tiltedCard2}`}>
             <div className={styles.tiltedCardImageWrap}>
               <img
-                src="/images/course_mentor_30.png"
+                src="/images/aashlesh.jpeg"
                 alt="C K Aashlesh Kumar"
                 className={styles.tiltedCardImg}
               />
@@ -544,7 +544,7 @@ export default function AboutClient() {
           <div className={`${styles.tiltedCard} ${styles.tiltedCard3}`}>
             <div className={styles.tiltedCardImageWrap}>
               <img
-                src="/images/avatar2.jpg"
+                src="/images/srijesh.jpeg"
                 alt="Srijesh K"
                 className={styles.tiltedCardImg}
               />

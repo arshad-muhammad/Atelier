@@ -1,0 +1,18 @@
+SCHEMA >
+    `event_id` String,
+    `event_name` LowCardinality(String),
+    `timestamp` DateTime,
+    `user_id` Nullable(Int64),
+    `role` LowCardinality(Nullable(String)),
+    `session_id` Nullable(String),
+    `course_id` Nullable(Int64),
+    `module_id` Nullable(Int64),
+    `topic_id` Nullable(Int64),
+    `assessment_id` Nullable(Int64),
+    `live_session_id` Nullable(Int64),
+    `source` LowCardinality(Nullable(String)),
+    `metadata` String
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "event_name, timestamp, user_id"

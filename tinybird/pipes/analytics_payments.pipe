@@ -1,0 +1,14 @@
+NODE payment_funnel
+DESCRIPTION "Conversion funnel from course viewing to payment and enrollment"
+SQL >
+    %
+    SELECT
+        countIf(event_name = 'course_viewed') as courseViews,
+        countIf(event_name = 'checkout_started') as checkoutStarts,
+        countIf(event_name = 'payment_initiated') as paymentAttempts,
+        countIf(event_name = 'payment_success') as successfulPayments,
+        countIf(event_name = 'payment_failed') as failedPayments,
+        countIf(event_name = 'payment_cancelled') as cancelledPayments,
+        countIf(event_name = 'refund_requested') as refundRequests,
+        sumIf(cast(JSONExtractRaw(metadata, 'amount') as Float64), event_name = 'payment_success') as totalRevenue
+    FROM atelier_events

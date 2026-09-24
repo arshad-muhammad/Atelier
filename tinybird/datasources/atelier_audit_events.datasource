@@ -1,0 +1,16 @@
+SCHEMA >
+    `event_id` String,
+    `timestamp` DateTime,
+    `admin_id` Nullable(Int64),
+    `admin_email` Nullable(String),
+    `action` LowCardinality(String),
+    `entity` LowCardinality(String),
+    `entity_id` Nullable(String),
+    `old_value` Nullable(String),
+    `new_value` Nullable(String),
+    `status` LowCardinality(String),
+    `metadata` String
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "entity, timestamp"

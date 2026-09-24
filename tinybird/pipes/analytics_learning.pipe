@@ -1,0 +1,38 @@
+NODE learning_overview
+DESCRIPTION "Platform-wide learning engagement metrics"
+SQL >
+    %
+    SELECT
+        countIf(event_name = 'course_viewed') as courseViews,
+        countIf(event_name = 'course_enrolled') as enrollments,
+        countIf(event_name = 'course_started') as courseStarts,
+        countIf(event_name = 'course_completed') as courseCompletions,
+        countIf(event_name = 'topic_completed') as topicsCompleted,
+        countIf(event_name = 'material_opened') as materialOpened,
+        countIf(event_name = 'material_downloaded') as materialDownloaded,
+        countIf(event_name = 'video_started') as videoStarted,
+        countIf(event_name = 'video_completed') as videoCompleted
+    FROM atelier_events
+    WHERE 1=1
+    {% if defined(course_id) %}
+        AND course_id = {{ Int64(course_id) }}
+    {% end %}
+
+NODE course_breakdown
+DESCRIPTION "Course-level engagement and completion breakdown"
+SQL >
+    %
+    SELECT
+        course_id,
+        countIf(event_name = 'course_viewed') as views,
+        countIf(event_name = 'course_enrolled') as enrollments,
+        countIf(event_name = 'course_started') as started,
+        countIf(event_name = 'course_progress_updated' AND JSONExtractInt(metadata, 'progress') >= 25) as p25,
+        countIf(event_name = 'course_progress_updated' AND JSONExtractInt(metadata, 'progress') >= 50) as p50,
+        countIf(event_name = 'course_progress_updated' AND JSONExtractInt(metadata, 'progress') >= 75) as p75,
+        countIf(event_name = 'course_completed') as completed,
+        round(if(enrollments > 0, (completed * 100.0) / enrollments, 0.0), 1) as completionRate
+    FROM atelier_events
+    WHERE course_id IS NOT NULL
+    GROUP BY course_id
+    ORDER BY enrollments DESC

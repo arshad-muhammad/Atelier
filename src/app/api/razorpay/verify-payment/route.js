@@ -1,6 +1,7 @@
 import { createHmac } from 'crypto';
 import { NextResponse } from 'next/server';
 import { query, execute, getConnection } from '../../../../utils/db-sql';
+import { trackServer } from '@/lib/analytics/server';
 
 export async function POST(request) {
   try {
@@ -93,15 +94,44 @@ export async function POST(request) {
       conn.release();
     }
 
+    // Authoritative Server-side Analytics Event (Non-blocking)
+    try {
+      trackServer('payment_success', {
+        userId: Number(studentId),
+        role: 'student',
+        courseId: Number(courseId),
+        metadata: {
+          amount: amount || '4999',
+          orderId: razorpay_order_id,
+          paymentId: razorpay_payment_id
+        }
+      });
+      trackServer('course_enrolled', {
+        userId: Number(studentId),
+        role: 'student',
+        courseId: Number(courseId)
+      });
+    } catch (e) {
+      // Never interfere with payment response
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Payment verified and enrollment completed.',
     });
   } catch (error) {
     console.error('Payment verification failed:', error);
+    try {
+      trackServer('payment_failed', {
+        source: '/api/razorpay/verify-payment',
+        metadata: { error: error.message }
+      });
+    } catch (e) {}
+
     return NextResponse.json(
       { error: 'Payment verification failed. Please contact support.' },
       { status: 500 }
     );
   }
 }
+

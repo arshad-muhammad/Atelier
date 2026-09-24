@@ -1,0 +1,31 @@
+NODE assessment_summary
+DESCRIPTION "Assessment metrics and pass/fail summary"
+SQL >
+    %
+    SELECT
+        uniqExact(assessment_id) as totalAssessments,
+        countIf(event_name = 'assessment_started') as totalAttempts,
+        round(avgIf(cast(JSONExtractRaw(metadata, 'score') as Float64), event_name = 'assessment_submitted'), 1) as avgScore,
+        countIf(event_name = 'assessment_passed') as passedCount,
+        countIf(event_name = 'assessment_failed') as failedCount,
+        round(if(totalAttempts > 0, (passedCount * 100.0) / (passedCount + failedCount), 0.0), 1) as passRate,
+        countIf(event_name = 'assessment_auto_submitted') as autoSubmissions,
+        round(avgIf(cast(JSONExtractRaw(metadata, 'time_spent_seconds') as Float64), event_name = 'assessment_submitted') / 60.0, 1) as avgCompletionMinutes
+    FROM atelier_events
+    WHERE assessment_id IS NOT NULL
+
+NODE question_breakdown
+DESCRIPTION "Question level difficulty and success rate"
+SQL >
+    %
+    SELECT
+        JSONExtractString(metadata, 'question_id') as question_id,
+        countIf(event_name = 'question_answered') as attempts,
+        countIf(event_name = 'question_answered' AND JSONExtractBool(metadata, 'is_correct') = 1) as correct,
+        countIf(event_name = 'question_answered' AND JSONExtractBool(metadata, 'is_correct') = 0) as incorrect,
+        round(if(attempts > 0, (correct * 100.0) / attempts, 0.0), 1) as successRate,
+        round(avg(cast(JSONExtractRaw(metadata, 'time_seconds') as Float64)), 1) as avgTimeSeconds
+    FROM atelier_events
+    WHERE event_name = 'question_answered'
+    GROUP BY question_id
+    ORDER BY successRate ASC

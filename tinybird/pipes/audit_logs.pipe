@@ -1,0 +1,32 @@
+NODE audit_trail
+DESCRIPTION "Filtered administrative audit events"
+SQL >
+    %
+    SELECT
+        event_id,
+        timestamp,
+        admin_id,
+        admin_email,
+        action,
+        entity,
+        entity_id,
+        old_value,
+        new_value,
+        status,
+        metadata
+    FROM atelier_audit_events
+    WHERE 1=1
+    {% if defined(entity) %}
+        AND entity = {{ String(entity) }}
+    {% end %}
+    {% if defined(status) %}
+        AND status = {{ String(status) }}
+    {% end %}
+    {% if defined(start_date) %}
+        AND timestamp >= {{ DateTime(start_date) }}
+    {% end %}
+    {% if defined(end_date) %}
+        AND timestamp <= {{ DateTime(end_date) }}
+    {% end %}
+    ORDER BY timestamp DESC
+    LIMIT 100

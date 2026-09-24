@@ -4,6 +4,8 @@ import { query, execute, getConnection, createFileRecord, getFileRecordById, del
 import { deleteMessageFromTelegram } from '../lib/telegram';
 import { hashPassword, verifyPassword, generateTempPassword, signMentorSession, isMentorLocked, assertMentorOwnsCourse, signAdminSession, verifyAdminSessionToken } from '../utils/auth';
 import { sendEmailOtp, verifyEmailOtp, resendEmailOtp } from '../utils/mojoauth';
+import { trackServer, trackAudit } from '@/lib/analytics/server';
+
 
 
 // --- STUDENTS ACTIONS ---
@@ -79,6 +81,27 @@ export async function saveStudent(s) {
       conn.release();
     }
 
+    try {
+      if (exists) {
+        trackAudit({
+          action: 'Updated Student',
+          entity: 'Student',
+          entityId: s.id,
+          newValue: `${s.name} (${s.email})`,
+          status: 'SUCCESS'
+        });
+        trackServer('student_updated', { userId: Number(s.id), role: 'student' });
+      } else {
+        trackAudit({
+          action: 'Created Student',
+          entity: 'Student',
+          newValue: `${s.name} (${s.email})`,
+          status: 'SUCCESS'
+        });
+        trackServer('student_created', { role: 'student' });
+      }
+    } catch (anErr) {}
+
     return { success: true };
   } catch (e) {
     console.error("SQL Error in saveStudent:", e);
@@ -89,12 +112,22 @@ export async function saveStudent(s) {
 export async function deleteStudent(id) {
   try {
     await execute("DELETE FROM atelier_students WHERE id = ?", [id]);
+    try {
+      trackAudit({
+        action: 'Deleted Student',
+        entity: 'Student',
+        entityId: id,
+        status: 'SUCCESS'
+      });
+      trackServer('student_deleted', { userId: Number(id), role: 'student' });
+    } catch (anErr) {}
     return { success: true };
   } catch (e) {
     console.error("SQL Error in deleteStudent:", e);
     throw new Error(e.message);
   }
 }
+
 
 export async function updateStudentProfile(id, name, email, phone, college, degree, gradYear, bio, github, linkedin, portfolio, skills, avatar = null) {
   try {
@@ -291,6 +324,28 @@ export async function saveCourse(c) {
       }
     }
 
+    try {
+      if (exists) {
+        trackAudit({
+          action: 'Updated Course',
+          entity: 'Course',
+          entityId: courseId,
+          newValue: `${c.title} (${c.price})`,
+          status: 'SUCCESS'
+        });
+        trackServer('course_updated', { courseId: Number(courseId) });
+      } else {
+        trackAudit({
+          action: 'Created Course',
+          entity: 'Course',
+          entityId: courseId,
+          newValue: `${c.title} (${c.price})`,
+          status: 'SUCCESS'
+        });
+        trackServer('course_created', { courseId: Number(courseId) });
+      }
+    } catch (anErr) {}
+
     return { success: true, id: courseId };
   } catch (e) {
     console.error("SQL Error in saveCourse:", e);
@@ -301,12 +356,22 @@ export async function saveCourse(c) {
 export async function deleteCourse(id) {
   try {
     await execute("DELETE FROM atelier_courses WHERE id = ?", [id]);
+    try {
+      trackAudit({
+        action: 'Deleted Course',
+        entity: 'Course',
+        entityId: id,
+        status: 'SUCCESS'
+      });
+      trackServer('course_deleted', { courseId: Number(id) });
+    } catch (anErr) {}
     return { success: true };
   } catch (e) {
     console.error("SQL Error in deleteCourse:", e);
     throw new Error(e.message);
   }
 }
+
 
 // --- LIVE SCHEDULE ACTIONS ---
 export async function getSchedule() {
@@ -2085,12 +2150,37 @@ export async function toggleTopicProgress(studentId, courseId, topicId) {
       );
     }
 
+    try {
+      if (existing.length === 0) {
+        trackServer('topic_completed', {
+          userId: Number(studentId),
+          role: 'student',
+          courseId: Number(courseId),
+          topicId: Number(topicId)
+        });
+      }
+      trackServer('course_progress_updated', {
+        userId: Number(studentId),
+        role: 'student',
+        courseId: Number(courseId),
+        metadata: { progress: stats.percentage }
+      });
+      if (stats.percentage === 100 && stats.total > 0) {
+        trackServer('course_completed', {
+          userId: Number(studentId),
+          role: 'student',
+          courseId: Number(courseId)
+        });
+      }
+    } catch (anErr) {}
+
     return stats;
   } catch (err) {
     console.error("Toggle topic progress error:", err);
     throw new Error(err.message);
   }
 }
+
 
 // ─────────────────────────────────────────────────────────────
 // ─── REAL LIVE SESSIONS ACTIONS ──────────────────────────────
@@ -2241,6 +2331,15 @@ export async function createLiveSession(mentorIdOrData, sessionData = null) {
       [courseId, validMentorId, title.trim(), description || null, formattedDate, durationMinutes || 60, finalMeetingLink]
     );
 
+    try {
+      trackServer('live_session_created', {
+        courseId: Number(courseId),
+        liveSessionId: res.insertId,
+        role: 'mentor',
+        metadata: { title: title.trim(), scheduledAt: formattedDate }
+      });
+    } catch (anErr) {}
+
     return { success: true, id: res.insertId };
   } catch (err) {
     console.error("Create live session error:", err);
@@ -2277,11 +2376,26 @@ export async function updateLiveSessionStatus(mentorId, sessionId, status, recor
         "UPDATE atelier_live_sessions SET status = 'live', started_at = NOW() WHERE id = ?",
         [sessionId]
       );
+      try {
+        trackServer('live_session_started', {
+          liveSessionId: Number(sessionId),
+          courseId: Number(session.course_id),
+          role: 'mentor'
+        });
+      } catch (anErr) {}
     } else if (status === 'completed') {
       await execute(
         "UPDATE atelier_live_sessions SET status = 'completed', ended_at = NOW(), recording_url = ? WHERE id = ?",
         [recordingUrl || null, sessionId]
       );
+      try {
+        trackServer('live_session_ended', {
+          liveSessionId: Number(sessionId),
+          courseId: Number(session.course_id),
+          role: 'mentor',
+          metadata: { recordingUrl }
+        });
+      } catch (anErr) {}
     } else if (status === 'cancelled') {
       await execute(
         "UPDATE atelier_live_sessions SET status = 'cancelled' WHERE id = ?",
@@ -2295,6 +2409,7 @@ export async function updateLiveSessionStatus(mentorId, sessionId, status, recor
     }
 
     return { success: true };
+
   } catch (err) {
     console.error("Update live session status error:", err);
     throw new Error(err.message);

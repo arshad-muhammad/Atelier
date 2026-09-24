@@ -1,0 +1,24 @@
+NODE overview_metrics
+DESCRIPTION "Aggregates core platform metrics for Atelier dashboard"
+SQL >
+    %
+    SELECT
+        uniqExactIf(user_id, timestamp >= today()) as dau,
+        uniqExactIf(user_id, timestamp >= today() - 7) as wau,
+        uniqExactIf(user_id, timestamp >= today() - 30) as mau,
+        countIf(event_name = 'user_signed_up') as newUsers,
+        uniqExact(session_id) as activeSessions,
+        countIf(event_name = 'course_enrolled') as courseEnrollments,
+        countIf(event_name = 'course_completed') as courseCompletions,
+        countIf(event_name = 'assessment_started') as assessmentAttempts,
+        round(avgIf(cast(JSONExtractRaw(metadata, 'score') as Float64), event_name = 'assessment_submitted'), 1) as avgAssessmentScore,
+        countIf(event_name = 'payment_success') as paymentSuccessCount,
+        sumIf(cast(JSONExtractRaw(metadata, 'amount') as Float64), event_name = 'payment_success') as totalRevenue
+    FROM atelier_events
+    WHERE 1=1
+    {% if defined(start_date) %}
+        AND timestamp >= {{ DateTime(start_date) }}
+    {% end %}
+    {% if defined(end_date) %}
+        AND timestamp <= {{ DateTime(end_date) }}
+    {% end %}

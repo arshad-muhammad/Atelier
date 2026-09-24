@@ -1,6 +1,8 @@
 import { Inter, Outfit, Manrope } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "../components/SmoothScroll";
+import AnalyticsTracker from "../components/AnalyticsTracker";
+
 
 const inter = Inter({
   variable: "--font-inter",
@@ -167,8 +169,10 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
+        <AnalyticsTracker />
         <SmoothScroll>{children}</SmoothScroll>
       </body>
+
     </html>
   );
 }

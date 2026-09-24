@@ -1,0 +1,25 @@
+NODE system_metrics
+DESCRIPTION "System health, API error rates and slow request tracking"
+SQL >
+    %
+    SELECT
+        count() as totalEvents,
+        countIf(event_name LIKE '%error%') as totalErrors,
+        countIf(event_name = 'slow_request') as slowRequests,
+        round(if(totalEvents > 0, (totalErrors * 100.0) / totalEvents, 0.0), 2) as errorRate
+    FROM atelier_events
+
+NODE recent_errors
+DESCRIPTION "Recent error events log"
+SQL >
+    %
+    SELECT
+        timestamp,
+        event_name as errorType,
+        source,
+        JSONExtractString(metadata, 'route') as route,
+        JSONExtractString(metadata, 'error') as errorMessage
+    FROM atelier_events
+    WHERE event_name LIKE '%error%'
+    ORDER BY timestamp DESC
+    LIMIT 50
