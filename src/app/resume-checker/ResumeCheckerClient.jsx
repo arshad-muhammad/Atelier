@@ -81,7 +81,7 @@ export default function ResumeCheckerClient() {
 
     const stepInterval = setInterval(() => {
       setAnalysisStep((prev) => (prev < 4 ? prev + 1 : prev));
-    }, 900);
+    }, 400);
 
     try {
       const formData = new FormData();
@@ -132,7 +132,7 @@ export default function ResumeCheckerClient() {
         <div className={styles.heroLeft}>
           <div className={styles.badge}>
             <span className={styles.badgeDot} />
-            <span>ATS RESUME COMPATIBILITY SCANNER</span>
+            <span>ATS Resume Compatibility Scanner</span>
           </div>
 
           <h1 className={styles.heroTitle}>
@@ -148,15 +148,24 @@ export default function ResumeCheckerClient() {
 
           <div className={styles.featurePillsRow}>
             <div className={styles.featurePill}>
-              <div className={styles.featurePillIcon}>⚡</div>
+              <div className={styles.featurePillIcon}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+              </div>
               <div className={styles.featurePillText}>
                 <span className={styles.featurePillTitle}>Instant Results</span>
-                <span className={styles.featurePillSub}>In seconds</span>
+                <span className={styles.featurePillSub}>Under 200ms</span>
               </div>
             </div>
 
             <div className={styles.featurePill}>
-              <div className={styles.featurePillIcon}>🛡️</div>
+              <div className={styles.featurePillIcon}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+              </div>
               <div className={styles.featurePillText}>
                 <span className={styles.featurePillTitle}>100% Private</span>
                 <span className={styles.featurePillSub}>Zero external API calls</span>
@@ -164,7 +173,16 @@ export default function ResumeCheckerClient() {
             </div>
 
             <div className={styles.featurePill}>
-              <div className={styles.featurePillIcon}>🎯</div>
+              <div className={styles.featurePillIcon}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="22" y1="12" x2="18" y2="12" />
+                  <line x1="6" y1="12" x2="2" y2="12" />
+                  <line x1="12" y1="6" x2="12" y2="2" />
+                  <line x1="12" y1="22" x2="12" y2="18" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </div>
               <div className={styles.featurePillText}>
                 <span className={styles.featurePillTitle}>Deterministic ATS</span>
                 <span className={styles.featurePillSub}>Rule-based heuristics</span>
@@ -179,7 +197,7 @@ export default function ResumeCheckerClient() {
               <div className={styles.avatarCircle}>R</div>
             </div>
             <span className={styles.socialProofText}>
-              Join 25,000+ engineers who improved their ATS callback rate
+              Used by 25,000+ engineers targeting top tech placements
             </span>
           </div>
         </div>
@@ -213,7 +231,6 @@ export default function ResumeCheckerClient() {
                 </svg>
                 <span className={styles.docTag}>PDF / DOCX</span>
               </div>
-              <span className={styles.docSparkle}>✦</span>
             </div>
 
             <h3 className={styles.dropTitle}>
@@ -231,7 +248,7 @@ export default function ResumeCheckerClient() {
                 fileInputRef.current?.click();
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
@@ -248,7 +265,7 @@ export default function ResumeCheckerClient() {
           {file && (
             <div className={styles.filePreviewBar}>
               <div className={styles.fileInfo}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" strokeWidth="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
@@ -264,8 +281,12 @@ export default function ResumeCheckerClient() {
                 className={styles.removeFileBtn}
                 onClick={handleRemoveFile}
                 title="Remove File"
+                aria-label="Remove File"
               >
-                ✕
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
           )}
@@ -277,18 +298,32 @@ export default function ResumeCheckerClient() {
               className={styles.jdToggleBtn}
               onClick={() => setShowJd(!showJd)}
             >
-              <span>
-                {showJd ? '▾ Hide Target Job Description' : '▸ Target Job Description (Optional)'}
-              </span>
-              <span style={{ fontSize: '0.72rem', color: 'var(--accent-orange)' }}>
-                {jobDescription.trim() ? '✓ Added' : 'Unlocks keyword gap'}
+              <div className={styles.jdToggleLeft}>
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  style={{
+                    transform: showJd ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease'
+                  }}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+                <span>Target Job Description (Optional)</span>
+              </div>
+              <span style={{ fontSize: '0.74rem', color: 'var(--accent-orange)' }}>
+                {jobDescription.trim() ? 'Description Attached' : 'Unlocks keyword gap analysis'}
               </span>
             </button>
 
             {showJd && (
               <textarea
                 className={styles.jdTextarea}
-                placeholder="Paste the target job description or requirements here to enable targeted keyword coverage and semantic similarity analysis..."
+                placeholder="Paste the target job description or requirements here to enable keyword coverage and requirement alignment..."
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
               />
@@ -298,7 +333,11 @@ export default function ResumeCheckerClient() {
           {/* Error Message */}
           {error && (
             <div className={styles.errorBanner}>
-              <span>⚠️</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
               <span>{error}</span>
             </div>
           )}
@@ -314,17 +353,18 @@ export default function ResumeCheckerClient() {
               <>
                 <span className={styles.spinner} />
                 <span>
-                  {analysisStep === 1 && 'Extracting layout & fonts...'}
+                  {analysisStep === 1 && 'Extracting layout & structure...'}
                   {analysisStep === 2 && 'Indexing skill taxonomy...'}
-                  {analysisStep === 3 && 'Evaluating ATS keyword heuristics...'}
-                  {analysisStep === 4 && 'Generating compatibility score...'}
+                  {analysisStep === 3 && 'Evaluating keyword heuristics...'}
+                  {analysisStep === 4 && 'Calculating compatibility score...'}
                 </span>
               </>
             ) : (
               <>
-                <span>Scan My Resume Free</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
+                <span>Scan Resume</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
                 </svg>
               </>
             )}
@@ -332,15 +372,15 @@ export default function ResumeCheckerClient() {
         </div>
       </section>
 
-      {/* RESULTS SECTION (Or Inspiration Preview if not yet scanned) */}
+      {/* RESULTS SECTION (Or Initial Preview if not yet scanned) */}
       <section ref={resultsRef} className={styles.reportSection} aria-label="Resume Analysis Results">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionTitleGroup}>
             <span className={styles.sectionPreTitle}>
-              {result ? 'ANALYSIS REPORT' : 'RESUME ANALYSIS PREVIEW'}
+              {result ? 'ANALYSIS REPORT' : 'RESUME SCANNER PREVIEW'}
             </span>
             <h2 className={styles.sectionMainTitle}>
-              {result ? 'Atelier Compatibility Breakdown' : 'See What You Get'}
+              {result ? 'Compatibility Breakdown' : 'Inspection Overview'}
             </h2>
           </div>
 
@@ -371,13 +411,24 @@ export default function ResumeCheckerClient() {
 
                 <div className={styles.contactBadges}>
                   <span className={styles.contactBadge}>
-                    ✉️ {result ? result.candidate_preview?.contact?.masked_email || 'Verified' : 'john.doe@example.com'}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    <span>{result ? result.candidate_preview?.contact?.masked_email || 'Verified' : 'john.doe@example.com'}</span>
                   </span>
                   <span className={styles.contactBadge}>
-                    📞 {result ? result.candidate_preview?.contact?.masked_phone || 'Verified' : '+1 555-***-4567'}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    <span>{result ? result.candidate_preview?.contact?.masked_phone || 'Verified' : '+1 555-***-4567'}</span>
                   </span>
                   <span className={styles.contactBadge}>
-                    🔗 {result ? `${result.candidate_preview?.contact?.links?.length || 2} Links` : 'LinkedIn & GitHub'}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                    <span>{result ? `${result.candidate_preview?.contact?.links?.length || 2} Links` : 'LinkedIn & GitHub'}</span>
                   </span>
                 </div>
               </div>
@@ -434,29 +485,45 @@ export default function ResumeCheckerClient() {
                 <p className={styles.scoreExplanation}>
                   {result
                     ? result.disclaimer
-                    : 'Estimated compatibility based on resume structure, job requirements, keyword coverage and semantic relevance.'}
+                    : 'Estimated compatibility based on resume structure, job requirements, keyword coverage and formatting heuristics.'}
                 </p>
 
                 <div className={styles.checklistGrid}>
                   <div className={styles.checklistItem}>
-                    <span className={styles.checkIcon}>✓</span>
+                    <span className={styles.checkIcon}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
                     <span>{result ? result.section_order_status : 'Good Section Order'}</span>
                   </div>
                   <div className={styles.checklistItem}>
-                    <span className={styles.checkIcon}>✓</span>
+                    <span className={styles.checkIcon}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
                     <span>
                       {result && result.ats_issues?.some((i) => i.severity === 'HIGH')
                         ? 'Critical Blockers Found'
-                        : 'No Critical Errors'}
+                        : 'No Critical Formatting Errors'}
                     </span>
                   </div>
                   <div className={styles.checklistItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    <span>Single-Column Clean</span>
+                    <span className={styles.checkIcon}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
+                    <span>Single Column Friendly</span>
                   </div>
                   <div className={styles.checklistItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    <span>ATS Optimized</span>
+                    <span className={styles.checkIcon}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
+                    <span>Verified Contact Markers</span>
                   </div>
                 </div>
               </div>
@@ -483,7 +550,7 @@ export default function ResumeCheckerClient() {
 
               <div className={styles.categoryBarRow}>
                 <div className={styles.categoryBarMeta}>
-                  <span className={styles.categoryBarTitle}>Semantic Relevance (25 pts max)</span>
+                  <span className={styles.categoryBarTitle}>Content Relevance & Alignment (25 pts max)</span>
                   <span className={styles.categoryBarScore}>
                     {result ? `${result.categories?.semantic_relevance || 22}/25` : '23/25 (92%)'}
                   </span>
@@ -558,7 +625,7 @@ export default function ResumeCheckerClient() {
           <div className={styles.skillBox}>
             <div className={styles.skillBoxHeader}>
               <h4 className={styles.skillBoxTitle}>
-                <span style={{ color: '#30d158' }}>✓</span>
+                <span className={styles.tagDotGreen} />
                 <span>Matched Skills & Keywords</span>
               </h4>
               <span className={styles.skillBadgeCount}>
@@ -570,17 +637,18 @@ export default function ResumeCheckerClient() {
               {result && result.matched_skills?.length > 0 ? (
                 result.matched_skills.map((s, idx) => (
                   <span key={idx} className={styles.matchedTag}>
-                    ✓ {s.skill}
+                    <span className={styles.tagDotGreen} />
+                    <span>{s.skill}</span>
                   </span>
                 ))
               ) : (
                 <>
-                  <span className={styles.matchedTag}>✓ React</span>
-                  <span className={styles.matchedTag}>✓ Next.js</span>
-                  <span className={styles.matchedTag}>✓ JavaScript</span>
-                  <span className={styles.matchedTag}>✓ Node.js</span>
-                  <span className={styles.matchedTag}>✓ PostgreSQL</span>
-                  <span className={styles.matchedTag}>✓ Git</span>
+                  <span className={styles.matchedTag}><span className={styles.tagDotGreen} />React</span>
+                  <span className={styles.matchedTag}><span className={styles.tagDotGreen} />Next.js</span>
+                  <span className={styles.matchedTag}><span className={styles.tagDotGreen} />JavaScript</span>
+                  <span className={styles.matchedTag}><span className={styles.tagDotGreen} />Node.js</span>
+                  <span className={styles.matchedTag}><span className={styles.tagDotGreen} />PostgreSQL</span>
+                  <span className={styles.matchedTag}><span className={styles.tagDotGreen} />Git</span>
                 </>
               )}
             </div>
@@ -590,7 +658,7 @@ export default function ResumeCheckerClient() {
           <div className={styles.skillBox}>
             <div className={styles.skillBoxHeader}>
               <h4 className={styles.skillBoxTitle}>
-                <span style={{ color: 'var(--accent-orange)' }}>○</span>
+                <span className={styles.tagDotOrange} />
                 <span>Missing Target Skills</span>
               </h4>
               <span className={styles.skillBadgeCount}>
@@ -602,14 +670,15 @@ export default function ResumeCheckerClient() {
               {result && result.missing_skills?.length > 0 ? (
                 result.missing_skills.map((s, idx) => (
                   <span key={idx} className={styles.missingTag}>
-                    ○ {s.skill} ({s.importance})
+                    <span className={styles.tagDotOrange} />
+                    <span>{s.skill} ({s.importance})</span>
                   </span>
                 ))
               ) : (
                 <>
-                  <span className={styles.missingTag}>○ TypeScript (Required)</span>
-                  <span className={styles.missingTag}>○ Docker (Required)</span>
-                  <span className={styles.missingTag}>○ AWS (Preferred)</span>
+                  <span className={styles.missingTag}><span className={styles.tagDotOrange} />TypeScript (Required)</span>
+                  <span className={styles.missingTag}><span className={styles.tagDotOrange} />Docker (Required)</span>
+                  <span className={styles.missingTag}><span className={styles.tagDotOrange} />AWS (Preferred)</span>
                 </>
               )}
             </div>
@@ -617,13 +686,14 @@ export default function ResumeCheckerClient() {
             {/* Related Technologies */}
             {result && result.related_skills && result.related_skills.length > 0 && (
               <div style={{ marginTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '0.5rem' }}>
-                  Related Skills Found (Same Category)
+                <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '0.5rem', fontFamily: 'var(--font-body)' }}>
+                  Related Skills Found (Same Domain)
                 </span>
                 <div className={styles.tagsCloud}>
                   {result.related_skills.map((r, idx) => (
                     <span key={idx} className={styles.relatedTag}>
-                      ◈ {r}
+                      <span className={styles.tagDotBlue} />
+                      <span>{r}</span>
                     </span>
                   ))}
                 </div>
@@ -637,7 +707,9 @@ export default function ResumeCheckerClient() {
           <div className={styles.sectionHeader} style={{ marginBottom: '1.25rem' }}>
             <div className={styles.sectionTitleGroup}>
               <span className={styles.sectionPreTitle}>FORMATTING & AUDIT</span>
-              <h3 style={{ fontSize: '1.45rem', fontWeight: 800 }}>ATS Formatting Findings</h3>
+              <h3 style={{ fontSize: '1.45rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>
+                ATS Formatting Findings
+              </h3>
             </div>
           </div>
 
@@ -683,13 +755,13 @@ export default function ResumeCheckerClient() {
           )}
         </div>
 
-        {/* DETERMINISTIC RECOMMENDATIONS */}
+        {/* ACTIONABLE RECOMMENDATIONS */}
         <div>
           <div className={styles.sectionHeader} style={{ marginBottom: '1.25rem' }}>
             <div className={styles.sectionTitleGroup}>
               <span className={styles.sectionPreTitle}>ACTIONABLE GUIDANCE</span>
-              <h3 style={{ fontSize: '1.45rem', fontWeight: 800 }}>
-                Structured Optimization Advice
+              <h3 style={{ fontSize: '1.45rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>
+                Optimization Recommendations
               </h3>
             </div>
           </div>
@@ -699,13 +771,13 @@ export default function ResumeCheckerClient() {
               result.recommendations.map((rec, idx) => (
                 <div key={idx} className={styles.recCard}>
                   <div className={styles.recHeader}>
-                    <span className={styles.recIndex}>{idx + 1}</span>
+                    <span className={styles.recIndex}>0{idx + 1}</span>
                     <h5 className={styles.recTitle}>{rec.title}</h5>
                   </div>
                   <p className={styles.recGuidance}>{rec.guidance}</p>
                   {rec.example && (
                     <div className={styles.recExampleBox}>
-                      <strong>Improvement Guidance:</strong>
+                      <strong>Actionable Example:</strong>
                       <br />
                       {rec.example}
                     </div>
@@ -716,8 +788,8 @@ export default function ResumeCheckerClient() {
               <>
                 <div className={styles.recCard}>
                   <div className={styles.recHeader}>
-                    <span className={styles.recIndex}>1</span>
-                    <h5 className={styles.recTitle}>Add measurable outcomes to experience bullets</h5>
+                    <span className={styles.recIndex}>01</span>
+                    <h5 className={styles.recTitle}>Add measurable business outcomes to experience bullets</h5>
                   </div>
                   <p className={styles.recGuidance}>
                     Quantify the business and technical impact of your contributions using metrics, latency savings, or scale numbers.
@@ -725,13 +797,13 @@ export default function ResumeCheckerClient() {
                   <div className={styles.recExampleBox}>
                     Current: &quot;Worked on a React application.&quot;
                     <br />
-                    Potential improvement guidance: Consider mentioning what you built, the technology used, and the measurable outcome (e.g. &quot;Engineered responsive UI using React &amp; Next.js, reducing bundle size by 30%&quot;).
+                    Recommendation: Follow Google’s X-Y-Z formula: &quot;Engineered responsive UI using React &amp; Next.js, reducing bundle size by 30% for 50,000 active users.&quot;
                   </div>
                 </div>
 
                 <div className={styles.recCard}>
                   <div className={styles.recHeader}>
-                    <span className={styles.recIndex}>2</span>
+                    <span className={styles.recIndex}>02</span>
                     <h5 className={styles.recTitle}>Explicitly include missing target stack keywords</h5>
                   </div>
                   <p className={styles.recGuidance}>
@@ -750,7 +822,7 @@ export default function ResumeCheckerClient() {
           <div className={styles.metricColIcon}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
-              <path d="m9 12 2 2 4-4" />
+              <polyline points="9 12 11 14 15 10" />
             </svg>
           </div>
           <div>
@@ -758,7 +830,7 @@ export default function ResumeCheckerClient() {
               {result ? `${result.metrics?.parse_rate || 98}%` : '98%'}
             </p>
             <p className={styles.metricColLabel}>Parse Rate</p>
-            <span className={styles.metricColStatus}>Excellent</span>
+            <span className={styles.metricColStatus}>Optimal</span>
           </div>
         </div>
 
@@ -775,7 +847,7 @@ export default function ResumeCheckerClient() {
               {result ? `${result.metrics?.keyword_match || 85}%` : '85%'}
             </p>
             <p className={styles.metricColLabel}>Keyword Match</p>
-            <span className={styles.metricColStatus}>Good</span>
+            <span className={styles.metricColStatus}>Strong</span>
           </div>
         </div>
 
@@ -791,7 +863,7 @@ export default function ResumeCheckerClient() {
               {result ? `${result.metrics?.content_quality || 94}%` : '94%'}
             </p>
             <p className={styles.metricColLabel}>Content Quality</p>
-            <span className={styles.metricColStatus}>Excellent</span>
+            <span className={styles.metricColStatus}>Optimal</span>
           </div>
         </div>
 
@@ -806,7 +878,7 @@ export default function ResumeCheckerClient() {
               {result ? `${result.metrics?.impact_score || 88}%` : '88%'}
             </p>
             <p className={styles.metricColLabel}>Impact Score</p>
-            <span className={styles.metricColStatus}>Good</span>
+            <span className={styles.metricColStatus}>Strong</span>
           </div>
         </div>
 
@@ -821,7 +893,7 @@ export default function ResumeCheckerClient() {
               {result ? `${result.metrics?.ats_compatibility || 92}%` : '100%'}
             </p>
             <p className={styles.metricColLabel}>ATS Compatibility</p>
-            <span className={styles.metricColStatus}>Excellent</span>
+            <span className={styles.metricColStatus}>Optimal</span>
           </div>
         </div>
       </section>
@@ -830,35 +902,55 @@ export default function ResumeCheckerClient() {
       <section className={styles.featuresGrid} aria-label="ATS Scanner Capabilities">
         <div className={styles.featureCard}>
           <div>
-            <div className={styles.featureCardIcon}>⚡</div>
-            <h3 className={styles.featureCardTitle}>Instant Analysis</h3>
+            <div className={styles.featureCardIcon}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </div>
+            <h3 className={styles.featureCardTitle}>Deterministic Analysis</h3>
             <p className={styles.featureCardText}>
-              Get your full ATS compatibility score, section audit, and detailed recruiter feedback in under 4 seconds.
+              Get full compatibility breakdown, section audit, and recruiter feedback calculated in milliseconds with zero hallucinations.
             </p>
           </div>
-          <span className={styles.featureTagPill}>Lightning Fast</span>
+          <span className={styles.featureTagPill}>Instant Execution</span>
         </div>
 
         <div className={styles.featureCard}>
           <div>
-            <div className={styles.featureCardIcon}>🎯</div>
-            <h3 className={styles.featureCardTitle}>Keyword Matching</h3>
+            <div className={styles.featureCardIcon}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="22" y1="12" x2="18" y2="12" />
+                <line x1="6" y1="12" x2="2" y2="12" />
+                <line x1="12" y1="6" x2="12" y2="2" />
+                <line x1="12" y1="22" x2="12" y2="18" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </div>
+            <h3 className={styles.featureCardTitle}>Keyword Taxonomy</h3>
             <p className={styles.featureCardText}>
-              Identify matched, missing, and related technologies with deep synonym taxonomy mapping for your profession.
+              Identify matched, missing, and related technologies with multi-tier synonym mapping tailored for developer resumes.
             </p>
           </div>
-          <span className={styles.featureTagPill}>Smart Detection</span>
+          <span className={styles.featureTagPill}>Developer Taxonomy</span>
         </div>
 
         <div className={styles.featureCard}>
           <div>
-            <div className={styles.featureCardIcon}>💡</div>
+            <div className={styles.featureCardIcon}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </div>
             <h3 className={styles.featureCardTitle}>Actionable Guidance</h3>
             <p className={styles.featureCardText}>
-              Receive clear, deterministic suggestions to improve bullet point outcomes and layout readability.
+              Receive clear, rule-based recommendations to strengthen bullet point impact, quantify metrics, and fix layout blockers.
             </p>
           </div>
-          <span className={styles.featureTagPill}>Deterministic Tips</span>
+          <span className={styles.featureTagPill}>Rule-Based Tips</span>
         </div>
       </section>
 
@@ -866,35 +958,35 @@ export default function ResumeCheckerClient() {
       <section className={styles.howItWorksBox} aria-label="How It Works Steps">
         <div className={styles.howItWorksIntro}>
           <h4 className={styles.howTitle}>How It Works</h4>
-          <p className={styles.howSub}>Simple. Fast. Effective.</p>
+          <p className={styles.howSub}>Simple. Fast. Transparent.</p>
         </div>
 
         <div className={styles.howStepsRow}>
           <div className={styles.howStep}>
-            <span className={styles.howStepNum}>1</span>
+            <span className={styles.howStepNum}>01</span>
             <div className={styles.howStepText}>
               <span className={styles.howStepHeading}>Upload Resume</span>
-              <span className={styles.howStepDetail}>Upload your resume in PDF or DOCX format.</span>
+              <span className={styles.howStepDetail}>Upload your resume in clean PDF or DOCX format.</span>
             </div>
           </div>
 
           <div className={styles.howDivider} />
 
           <div className={styles.howStep}>
-            <span className={styles.howStepNum}>2</span>
+            <span className={styles.howStepNum}>02</span>
             <div className={styles.howStepText}>
-              <span className={styles.howStepHeading}>Deep ATS Scan</span>
-              <span className={styles.howStepDetail}>Our deterministic ATS engine scans layout and keyword alignment.</span>
+              <span className={styles.howStepHeading}>Deterministic Scan</span>
+              <span className={styles.howStepDetail}>Analyzes text hierarchy, skill coverage, and layout.</span>
             </div>
           </div>
 
           <div className={styles.howDivider} />
 
           <div className={styles.howStep}>
-            <span className={styles.howStepNum}>3</span>
+            <span className={styles.howStepNum}>03</span>
             <div className={styles.howStepText}>
-              <span className={styles.howStepHeading}>Get Detailed Report</span>
-              <span className={styles.howStepDetail}>Receive your score, keyword gaps, and recruiter tips.</span>
+              <span className={styles.howStepHeading}>Actionable Report</span>
+              <span className={styles.howStepDetail}>Review your score, keyword gaps, and recruiter tips.</span>
             </div>
           </div>
         </div>

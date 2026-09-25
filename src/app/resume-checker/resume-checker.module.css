@@ -1,43 +1,64 @@
 /* ==========================================================================
-   Atelier ATS Resume Checker Stylesheet
-   Inspired by design-inspo.png with Atelier Brand Polish
+   Atelier ATS Resume Scanner - Signature Dark Tech Theme
+   Aligned with Atelier Design System (Manrope/Outfit + Inter)
    ========================================================================== */
 
 .pageWrapper {
   min-height: 100vh;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--bg-color, #000000);
+  color: var(--text-primary, #ffffff);
+  font-family: var(--font-body);
   overflow-x: hidden;
   position: relative;
 }
 
-/* Ambient Background Lights */
-.bgGlowTop {
+/* Background Grid Pattern - Identical to Atelier Hero */
+.backgroundGrid {
   position: absolute;
   top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  background-position: center center;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+}
+
+/* Ambient Radial Glows */
+.bgGlowTop {
+  position: absolute;
+  top: -120px;
   left: 50%;
   transform: translateX(-50%);
-  width: 1000px;
-  height: 550px;
-  background: radial-gradient(circle, rgba(242, 85, 34, 0.12) 0%, rgba(242, 85, 34, 0.02) 45%, transparent 70%);
+  width: 900px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(242, 85, 34, 0.12) 0%, rgba(242, 85, 34, 0.02) 55%, transparent 75%);
+  filter: blur(80px);
   pointer-events: none;
   z-index: 0;
 }
 
 .bgGlowAccent {
   position: absolute;
-  top: 350px;
-  right: -200px;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255, 115, 60, 0.06) 0%, transparent 65%);
+  top: 400px;
+  right: -150px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(242, 85, 34, 0.05) 0%, transparent 65%);
+  filter: blur(70px);
   pointer-events: none;
   z-index: 0;
 }
 
 .mainContent {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   padding-top: 100px;
   padding-bottom: 80px;
 }
@@ -75,14 +96,14 @@
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
   background: rgba(242, 85, 34, 0.08);
-  border: 1px solid rgba(242, 85, 34, 0.35);
-  font-size: 0.75rem;
-  font-weight: 700;
+  border: 1px solid rgba(242, 85, 34, 0.3);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-body);
   color: var(--accent-orange, #f25522);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 0 20px rgba(242, 85, 34, 0.15);
+  margin-bottom: 1.5rem;
 }
 
 .badgeDot {
@@ -96,16 +117,23 @@
 
 @keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 0.35; transform: scale(0.8); }
 }
 
 .heroTitle {
-  font-size: 4rem;
-  line-height: 1.05;
+  font-family: var(--font-heading);
+  font-size: 3.8rem;
+  line-height: 1.1;
   font-weight: 800;
   letter-spacing: -0.03em;
   margin-bottom: 1.25rem;
   color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .heroTitle {
+    font-size: 2.75rem;
+  }
 }
 
 .titleOrange {
@@ -116,10 +144,11 @@
 }
 
 .heroSubtitle {
-  font-size: 1.15rem;
-  line-height: 1.6;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.65;
   color: rgba(255, 255, 255, 0.65);
-  max-width: 540px;
+  max-width: 520px;
   margin-bottom: 2rem;
 }
 
@@ -127,7 +156,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1.25rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2.25rem;
 }
 
 .featurePill {
@@ -137,15 +166,16 @@
 }
 
 .featurePillIcon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  background: rgba(242, 85, 34, 0.1);
-  border: 1px solid rgba(242, 85, 34, 0.25);
+  background: rgba(242, 85, 34, 0.08);
+  border: 1px solid rgba(242, 85, 34, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--accent-orange, #f25522);
+  flex-shrink: 0;
 }
 
 .featurePillText {
@@ -154,12 +184,14 @@
 }
 
 .featurePillTitle {
-  font-size: 0.85rem;
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
   font-weight: 700;
   color: #ffffff;
 }
 
 .featurePillSub {
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.45);
 }
@@ -167,7 +199,7 @@
 .socialProofRow {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .avatarPile {
@@ -176,33 +208,35 @@
 }
 
 .avatarCircle {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid #000000;
   background: #222226;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-body);
   color: #ffffff;
-  margin-left: -8px;
+  margin-left: -6px;
 }
 
 .avatarCircle:first-child {
   margin-left: 0;
-  background: #f25522;
+  background: var(--accent-orange, #f25522);
   color: #000;
 }
 .avatarCircle:nth-child(2) {
-  background: #e65c00;
+  background: #ff7a45;
 }
 .avatarCircle:nth-child(3) {
-  background: #7733ff;
+  background: #3a3a42;
 }
 
 .socialProofText {
+  font-family: var(--font-body);
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.55);
 }
@@ -212,12 +246,12 @@
    ========================================================================== */
 
 .uploadCard {
-  background: radial-gradient(circle at top right, rgba(242, 85, 34, 0.08) 0%, rgba(18, 18, 22, 0.8) 100%);
-  border: 1px solid rgba(242, 85, 34, 0.28);
-  border-radius: 20px;
+  background: #0a0a0d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
   padding: 2.25rem;
   position: relative;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 35px rgba(242, 85, 34, 0.08);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(242, 85, 34, 0.05);
   overflow: hidden;
 }
 
@@ -227,32 +261,30 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(242, 85, 34, 0.6), transparent);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-orange, #f25522), transparent);
 }
 
 .dropZone {
-  border: 2px dashed rgba(242, 85, 34, 0.35);
-  border-radius: 16px;
-  padding: 2.25rem 1.5rem;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 2.5rem 1.5rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.25s ease;
-  background: rgba(0, 0, 0, 0.35);
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.015);
   position: relative;
 }
 
 .dropZone:hover, .dropZoneActive {
   border-color: var(--accent-orange, #f25522);
-  background: rgba(242, 85, 34, 0.06);
-  box-shadow: inset 0 0 20px rgba(242, 85, 34, 0.1);
+  background: rgba(242, 85, 34, 0.04);
 }
 
 .docIconWrap {
-  width: 60px;
-  height: 72px;
+  width: 56px;
+  height: 64px;
   margin: 0 auto 1.25rem;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -260,40 +292,29 @@
 
 .docIconBox {
   width: 52px;
-  height: 64px;
-  border-radius: 8px;
-  background: #1c1c22;
+  height: 60px;
+  border-radius: 10px;
+  background: #141418;
   border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
+  color: var(--accent-orange, #f25522);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 .docTag {
+  font-family: var(--font-body);
   font-size: 0.65rem;
-  font-weight: 800;
-  color: var(--accent-orange, #f25522);
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.05em;
   margin-top: 4px;
 }
 
-.docSparkle {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  color: var(--accent-orange, #f25522);
-  animation: rotateSparkle 4s linear infinite;
-}
-
-@keyframes rotateSparkle {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 .dropTitle {
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
   color: #ffffff;
@@ -301,6 +322,7 @@
 }
 
 .dropSubtitle {
+  font-family: var(--font-body);
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.45);
   margin-bottom: 1.25rem;
@@ -312,23 +334,26 @@
   gap: 0.5rem;
   padding: 0.65rem 1.4rem;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(242, 85, 34, 0.4);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  font-size: 0.88rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .browseBtn:hover {
-  background: rgba(242, 85, 34, 0.15);
+  background: rgba(242, 85, 34, 0.12);
   border-color: var(--accent-orange, #f25522);
+  color: var(--accent-orange, #f25522);
 }
 
 .supportedFormats {
   margin-top: 1rem;
+  font-family: var(--font-body);
   font-size: 0.74rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.38);
   letter-spacing: 0.02em;
 }
 
@@ -336,8 +361,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(242, 85, 34, 0.08);
-  border: 1px solid rgba(242, 85, 34, 0.3);
+  background: rgba(242, 85, 34, 0.06);
+  border: 1px solid rgba(242, 85, 34, 0.25);
   border-radius: 10px;
   padding: 0.75rem 1rem;
   margin-top: 1rem;
@@ -351,16 +376,18 @@
 }
 
 .fileName {
+  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 220px;
 }
 
 .fileSize {
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.45);
 }
@@ -396,6 +423,7 @@
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
   padding: 0.35rem 0;
@@ -407,17 +435,23 @@
   color: var(--accent-orange, #f25522);
 }
 
+.jdToggleLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .jdTextarea {
   width: 100%;
   height: 110px;
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.45);
+  background: #060608;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   color: #ffffff;
   font-size: 0.82rem;
-  font-family: inherit;
+  font-family: var(--font-body);
   resize: vertical;
   outline: none;
   transition: border-color 0.2s;
@@ -432,8 +466,9 @@
   margin-top: 1.5rem;
   padding: 0.95rem;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f25522 0%, #d84315 100%);
+  background: linear-gradient(135deg, #f25522 0%, #cc441a 100%);
   color: #ffffff;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 700;
   border: none;
@@ -473,9 +508,10 @@
   margin-top: 1rem;
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  background: rgba(255, 69, 58, 0.12);
+  background: rgba(255, 69, 58, 0.1);
   border: 1px solid rgba(255, 69, 58, 0.3);
   color: #ff6961;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   display: flex;
   align-items: center;
@@ -505,17 +541,20 @@
 }
 
 .sectionPreTitle {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   color: var(--accent-orange, #f25522);
   text-transform: uppercase;
 }
 
 .sectionMainTitle {
+  font-family: var(--font-heading);
   font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+  color: #ffffff;
 }
 
 .reportGrid {
@@ -550,7 +589,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(90deg, var(--accent-orange, #f25522), #ff8a65);
 }
 
@@ -559,18 +598,20 @@
 }
 
 .candidateName {
-  font-size: 1.45rem;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
   font-weight: 800;
   color: #ffffff;
 }
 
 .candidateTitle {
-  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
   color: var(--accent-orange, #f25522);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
 }
 
 .contactBadges {
@@ -583,11 +624,12 @@
 .contactBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.65rem;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.7);
 }
@@ -608,6 +650,7 @@
 }
 
 .statLabel {
+  font-family: var(--font-body);
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
@@ -615,20 +658,22 @@
 }
 
 .statValue {
-  font-size: 1.15rem;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
   font-weight: 800;
   color: #ffffff;
   margin-top: 0.2rem;
 }
 
 .snippetBox {
-  background: rgba(0, 0, 0, 0.4);
+  background: #060608;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
   padding: 1rem;
   font-size: 0.78rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.5);
-  font-family: monospace;
+  font-family: var(--font-body);
   max-height: 140px;
   overflow-y: auto;
 }
@@ -684,6 +729,7 @@
 }
 
 .radialScore {
+  font-family: var(--font-heading);
   font-size: 2.2rem;
   font-weight: 800;
   line-height: 1;
@@ -691,11 +737,12 @@
 }
 
 .radialGrade {
-  font-size: 0.65rem;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--accent-orange, #f25522);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   margin-top: 4px;
 }
 
@@ -705,6 +752,7 @@
 }
 
 .scoreTitle {
+  font-family: var(--font-heading);
   font-size: 1.35rem;
   font-weight: 800;
   color: #ffffff;
@@ -712,6 +760,7 @@
 }
 
 .scoreExplanation {
+  font-family: var(--font-body);
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.5;
@@ -728,12 +777,15 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.8);
 }
 
 .checkIcon {
   color: #30d158;
+  display: flex;
+  align-items: center;
 }
 
 /* Category Progress Bars */
@@ -752,6 +804,7 @@
 .categoryBarMeta {
   display: flex;
   justify-content: space-between;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -766,7 +819,7 @@
 
 .barTrack {
   width: 100%;
-  height: 8px;
+  height: 7px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 9999px;
   overflow: hidden;
@@ -811,19 +864,23 @@
 }
 
 .skillBoxTitle {
+  font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: #ffffff;
 }
 
 .skillBadgeCount {
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.2rem 0.55rem;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .tagsCloud {
@@ -835,12 +892,13 @@
 .matchedTag {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   padding: 0.4rem 0.75rem;
   border-radius: 8px;
-  background: rgba(48, 209, 88, 0.1);
+  background: rgba(48, 209, 88, 0.08);
   border: 1px solid rgba(48, 209, 88, 0.25);
   color: #4cd964;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -848,12 +906,13 @@
 .missingTag {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   padding: 0.4rem 0.75rem;
   border-radius: 8px;
-  background: rgba(242, 85, 34, 0.1);
+  background: rgba(242, 85, 34, 0.08);
   border: 1px solid rgba(242, 85, 34, 0.3);
   color: #ff9f76;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -861,14 +920,42 @@
 .relatedTag {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   padding: 0.4rem 0.75rem;
   border-radius: 8px;
-  background: rgba(10, 132, 255, 0.1);
+  background: rgba(10, 132, 255, 0.08);
   border: 1px solid rgba(10, 132, 255, 0.25);
   color: #5ac8fa;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
+}
+
+.tagDotGreen {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #30d158;
+  box-shadow: 0 0 6px rgba(48, 209, 88, 0.6);
+  flex-shrink: 0;
+}
+
+.tagDotOrange {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-orange, #f25522);
+  box-shadow: 0 0 6px rgba(242, 85, 34, 0.6);
+  flex-shrink: 0;
+}
+
+.tagDotBlue {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #0a84ff;
+  box-shadow: 0 0 6px rgba(10, 132, 255, 0.6);
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -912,6 +999,7 @@
 }
 
 .severityPill {
+  font-family: var(--font-body);
   font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -934,12 +1022,14 @@
 }
 
 .issueTitle {
+  font-family: var(--font-heading);
   font-size: 0.95rem;
   font-weight: 700;
   color: #ffffff;
 }
 
 .issueExplanation {
+  font-family: var(--font-body);
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.65);
   line-height: 1.5;
@@ -972,6 +1062,7 @@
   border-radius: 50%;
   background: var(--accent-orange, #f25522);
   color: #000000;
+  font-family: var(--font-heading);
   font-size: 0.8rem;
   font-weight: 800;
   display: flex;
@@ -981,12 +1072,14 @@
 }
 
 .recTitle {
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
   color: #ffffff;
 }
 
 .recGuidance {
+  font-family: var(--font-body);
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.65);
   line-height: 1.55;
@@ -1000,13 +1093,14 @@
   background: rgba(0, 0, 0, 0.35);
   border-left: 3px solid var(--accent-orange, #f25522);
   border-radius: 0 8px 8px 0;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.45;
 }
 
 /* ==========================================================================
-   FEATURE CARDS & HOW IT WORKS
+   METRICS BANNER ROW
    ========================================================================== */
 
 .metricsBannerRow {
@@ -1038,6 +1132,7 @@
 }
 
 .metricColVal {
+  font-family: var(--font-heading);
   font-size: 1.35rem;
   font-weight: 800;
   color: #ffffff;
@@ -1045,12 +1140,14 @@
 }
 
 .metricColLabel {
+  font-family: var(--font-body);
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.45);
   margin-top: 2px;
 }
 
 .metricColStatus {
+  font-family: var(--font-body);
   font-size: 0.68rem;
   font-weight: 700;
   color: #30d158;
@@ -1090,8 +1187,8 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(242, 85, 34, 0.1);
-  border: 1px solid rgba(242, 85, 34, 0.25);
+  background: rgba(242, 85, 34, 0.08);
+  border: 1px solid rgba(242, 85, 34, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1100,12 +1197,15 @@
 }
 
 .featureCardTitle {
+  font-family: var(--font-heading);
   font-size: 1.2rem;
   font-weight: 700;
+  color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
 .featureCardText {
+  font-family: var(--font-body);
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.55;
@@ -1119,6 +1219,7 @@
   border-radius: 9999px;
   background: rgba(242, 85, 34, 0.08);
   border: 1px solid rgba(242, 85, 34, 0.25);
+  font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--accent-orange, #f25522);
@@ -1148,12 +1249,15 @@
 }
 
 .howTitle {
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 800;
+  color: #ffffff;
   margin-bottom: 0.2rem;
 }
 
 .howSub {
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.45);
 }
@@ -1189,6 +1293,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-heading);
   font-size: 0.8rem;
   font-weight: 800;
   color: var(--accent-orange, #f25522);
@@ -1201,12 +1306,14 @@
 }
 
 .howStepHeading {
+  font-family: var(--font-heading);
   font-size: 0.88rem;
   font-weight: 700;
   color: #ffffff;
 }
 
 .howStepDetail {
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.45);
   line-height: 1.4;
@@ -1223,4 +1330,120 @@
   .howDivider {
     display: none;
   }
+}
+
+/* ==========================================================================
+   GUIDE & FAQ SECTION (KNOWLEDGE BASE)
+   ========================================================================== */
+
+.guideSection {
+  margin-top: 5rem;
+  padding-top: 3.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.guideHeader {
+  margin-bottom: 2.5rem;
+}
+
+.guidePreTitle {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-orange, #f25522);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.guideTitle {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+.guideSubtitle {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 780px;
+  margin-top: 0.75rem;
+  line-height: 1.65;
+}
+
+.guideGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3.5rem;
+}
+
+.guideCard {
+  background: #0d0d12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1.75rem;
+}
+
+.guideCardTitle {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.65rem;
+}
+
+.guideCardText {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.58);
+  line-height: 1.6;
+}
+
+.faqContainer {
+  background: #0a0a0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+
+.faqTitle {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.faqItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.faqItemBorder {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 1.25rem;
+}
+
+.faqQuestion {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent-orange, #f25522);
+}
+
+.faqAnswer {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
 }

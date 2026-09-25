@@ -176,6 +176,7 @@ const breadcrumbSchema = {
 export default function ResumeCheckerPage() {
   return (
     <div className={styles.pageWrapper}>
+      <div className={styles.backgroundGrid} />
       <div className={styles.bgGlowTop} />
       <div className={styles.bgGlowAccent} />
 
@@ -200,78 +201,78 @@ export default function ResumeCheckerPage() {
         <ResumeCheckerClient />
 
         {/* ON-PAGE SEO CONTENT & KNOWLEDGE BASE */}
-        <article style={{ marginTop: '5rem', paddingTop: '3rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-          <header style={{ marginBottom: '2.5rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-orange, #f25522)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              RECRUITER INSIGHTS & GUIDE
+        <article className={styles.guideSection}>
+          <header className={styles.guideHeader}>
+            <span className={styles.guidePreTitle}>
+              Recruiter Insights &amp; Guide
             </span>
-            <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', marginTop: '0.35rem', letterSpacing: '-0.02em' }}>
+            <h2 className={styles.guideTitle}>
               How to Beat Modern Applicant Tracking Systems (ATS)
             </h2>
-            <p style={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.6)', maxWidth: '780px', marginTop: '0.75rem', lineHeight: 1.6 }}>
+            <p className={styles.guideSubtitle}>
               Over 98% of Fortune 500 corporations and leading tech startups screen engineering candidates using Applicant Tracking Systems like Workday, Greenhouse, Lever, and Taleo before a human recruiter ever sees a CV.
             </p>
           </header>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', marginBottom: '3.5rem' }}>
-            <div style={{ background: '#0d0d12', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '14px', padding: '1.75rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.65rem' }}>
-                1. Single-Column Layout Over Fancy Graphics
+          <div className={styles.guideGrid}>
+            <div className={styles.guideCard}>
+              <h3 className={styles.guideCardTitle}>
+                1. Single-Column Layout Over Complex Graphics
               </h3>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.55)', lineHeight: 1.6 }}>
-                Graphic-heavy multi-column templates created in tools like Canva or Photoshop often fail text extraction. Text blocks get interwoven horizontally, scrambling your timeline. Stick to clean, single-column semantic hierarchy with standard margin spacing.
+              <p className={styles.guideCardText}>
+                Graphic-heavy multi-column templates created in graphic editors often fail text extraction. Text blocks get interwoven horizontally, scrambling your timeline. Stick to clean, single-column semantic hierarchy with standard margin spacing.
               </p>
             </div>
 
-            <div style={{ background: '#0d0d12', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '14px', padding: '1.75rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.65rem' }}>
-                2. Semantic Keyword & Synonym Alignment
+            <div className={styles.guideCard}>
+              <h3 className={styles.guideCardTitle}>
+                2. Explicit Keyword &amp; Skill Alignment
               </h3>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.55)', lineHeight: 1.6 }}>
-                Modern ATS engines match exact skills and semantic variants. If a job calls for &quot;PostgreSQL&quot;, writing &quot;Postgres&quot; may match via synonyms, but explicit alignment ensures your profile ranks at the top of the recruiter query table.
+              <p className={styles.guideCardText}>
+                Modern ATS engines match exact skills and standard taxonomy synonyms. If a job calls for &quot;PostgreSQL&quot;, writing &quot;Postgres&quot; may match via synonyms, but explicit alignment ensures your profile ranks at the top of the recruiter query table.
               </p>
             </div>
 
-            <div style={{ background: '#0d0d12', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '14px', padding: '1.75rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.65rem' }}>
-                3. Measurable Outcomes Over Task Lists
+            <div className={styles.guideCard}>
+              <h3 className={styles.guideCardTitle}>
+                3. Measurable Outcomes Over Generic Task Lists
               </h3>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.55)', lineHeight: 1.6 }}>
+              <p className={styles.guideCardText}>
                 Weak bullet points like &quot;Worked on React features&quot; receive low impact scores. Strong bullets follow Google’s X-Y-Z formula: &quot;Engineered real-time chat utilizing WebSockets &amp; Redis, decreasing message latency by 45% for 10,000 active users.&quot;
               </p>
             </div>
           </div>
 
           {/* FAQ Section */}
-          <section aria-label="Frequently Asked Questions" style={{ background: '#0a0a0d', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '2.5rem' }}>
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+          <section className={styles.faqContainer} aria-label="Frequently Asked Questions">
+            <h3 className={styles.faqTitle}>
               Frequently Asked Questions (FAQ)
             </h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--accent-orange, #f25522)', marginBottom: '0.35rem' }}>
+            <div className={styles.faqList}>
+              <div className={styles.faqItem}>
+                <h4 className={styles.faqQuestion}>
                   How does the Atelier Compatibility Score differ from an official ATS score?
                 </h4>
-                <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6 }}>
+                <p className={styles.faqAnswer}>
                   There is no single universal &quot;official ATS score&quot; in the industry because each enterprise software (Workday, Taleo, Greenhouse) uses distinct proprietary scoring rules. Atelier provides an estimated compatibility score based on verified industry heuristics: text parsability, section ordering, skill coverage, and keyword alignment.
                 </p>
               </div>
 
-              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '1.25rem' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--accent-orange, #f25522)', marginBottom: '0.35rem' }}>
+              <div className={`${styles.faqItem} ${styles.faqItemBorder}`}>
+                <h4 className={styles.faqQuestion}>
                   Is my resume data kept private?
                 </h4>
-                <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6 }}>
+                <p className={styles.faqAnswer}>
                   Yes, 100%. We run our analysis completely in-process using deterministic rule-based algorithms without using any AI models or third-party commercial APIs (such as OpenAI, Gemini, or Claude). Phone numbers and emails are automatically masked, and files are discarded immediately following analysis.
                 </p>
               </div>
 
-              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '1.25rem' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--accent-orange, #f25522)', marginBottom: '0.35rem' }}>
+              <div className={`${styles.faqItem} ${styles.faqItemBorder}`}>
+                <h4 className={styles.faqQuestion}>
                   Should I submit my resume in PDF or DOCX format?
                 </h4>
-                <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6 }}>
+                <p className={styles.faqAnswer}>
                   Both formats are supported. Standard text-based PDF preserves formatting across devices while remaining fully readable by modern ATS parsers. If a job application specifically requests Word format, upload a clean .docx document without text in headers or footers.
                 </p>
               </div>
