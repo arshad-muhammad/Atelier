@@ -652,22 +652,14 @@
   max-width: 900px;
 }
 
-.learningRoadmapSection .accordionItem {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+/* Base Accordion Classes */
+.accordionItem {
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
-.learningRoadmapSection .accordionItem.accordionItemOpen {
-  border-color: rgba(242, 85, 34, 0.35);
-  background: #ffffff;
-  box-shadow: 0 8px 25px rgba(242, 85, 34, 0.08);
-}
-
-.learningRoadmapSection .accordionTrigger {
+.accordionTrigger {
   width: 100%;
   display: flex;
   align-items: center;
@@ -681,56 +673,117 @@
   transition: background 0.2s;
 }
 
-.learningRoadmapSection .accordionTrigger:hover {
-  background: rgba(0, 0, 0, 0.015);
-}
-
-.learningRoadmapSection .accordionLeft {
+.accordionLeft {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex: 1;
 }
 
-.learningRoadmapSection .accordionNum {
+.accordionNum {
   font-family: var(--font-heading);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: var(--accent-orange);
-  min-width: 30px;
+  min-width: 32px;
 }
 
-.learningRoadmapSection .accordionQ {
-  font-size: 0.98rem;
+.accordionQ {
+  font-family: var(--font-heading);
+  font-size: 1rem;
   font-weight: 700;
-  color: #111111;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
-.learningRoadmapSection .accordionIcon {
+.accordionIcon {
   width: 20px;
   height: 20px;
-  color: #777777;
   flex-shrink: 0;
   transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s;
 }
 
-.learningRoadmapSection .accordionIconOpen {
+.accordionIconOpen {
   transform: rotate(180deg);
   color: var(--accent-orange);
 }
 
-.learningRoadmapSection .accordionBody {
+.accordionBody {
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.learningRoadmapSection .accordionAns {
-  padding: 0 1.6rem 1.25rem 3.8rem;
-  font-size: 0.9rem;
-  color: #555555;
+.accordionInner {
+  padding: 0 1.6rem 1.35rem 3.8rem;
+}
+
+.accordionAns {
+  font-size: 0.92rem;
   line-height: 1.65;
+  margin: 0;
+}
+
+.accordionTopics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.accordionTopicItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  color: #333333;
+}
+
+.accordionTopicCheck {
+  width: 13px;
+  height: 13px;
+  color: var(--accent-orange);
+  flex-shrink: 0;
+}
+
+/* Light Theme: Learning Roadmap Specific */
+.learningRoadmapSection .accordionItem {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.learningRoadmapSection .accordionItem.accordionItemOpen {
+  border-color: rgba(242, 85, 34, 0.35);
+  background: #ffffff;
+  box-shadow: 0 8px 25px rgba(242, 85, 34, 0.08);
+}
+
+.learningRoadmapSection .accordionTrigger:hover {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.learningRoadmapSection .accordionQ {
+  color: #111111;
+  font-size: 1rem;
+}
+
+.learningRoadmapSection .accordionIcon {
+  color: #777777;
+}
+
+.learningRoadmapSection .accordionAns {
+  color: #555555;
+}
+
+.learningRoadmapSection .accordionTopicItem {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: #222222;
 }
 
 .syllabusContainerMerged {
@@ -1164,14 +1217,67 @@
 .faqSection {
   position: relative;
   background: #000;
-  border-top: 1px solid rgba(255,255,255,0.04);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .faqList {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  max-width: 780px;
+  gap: 0.85rem;
+  max-width: 900px;
+  margin-top: 2rem;
+}
+
+.faqSection .accordionItem {
+  background: #0d0d10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.faqSection .accordionItem.accordionItemOpen {
+  border-color: rgba(242, 85, 34, 0.4);
+  background: #121217;
+  box-shadow: 0 8px 30px rgba(242, 85, 34, 0.1), 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.faqSection .accordionTrigger {
+  padding: 1.35rem 1.6rem;
+}
+
+.faqSection .accordionTrigger:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.faqSection .accordionNum {
+  color: var(--accent-orange);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.faqSection .accordionQ {
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.faqSection .accordionIcon {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.faqSection .accordionIconOpen {
+  color: var(--accent-orange);
+}
+
+.faqSection .accordionInner {
+  padding: 0 1.6rem 1.4rem 3.8rem;
+}
+
+.faqSection .accordionAns {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.94rem;
+  line-height: 1.7;
 }
 
 /* ═══════════ PRICING CARD SECTION ═══════════ */

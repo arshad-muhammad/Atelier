@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CheckoutModal from '@/components/CheckoutModal';
-import { getCourseById, getLecturers, getMaterials, getStudentProfileByEmail, getSchedule } from '../../actions';
+import { getCourseById, getLecturers, getMaterials, getStudentProfileByEmail, getSchedule, getCourseSyllabus } from '../../actions';
 import styles from './course-detail.module.css';
 
 // ── Tech icon map (SVG paths rendered inline, no external deps) ──
@@ -102,22 +102,110 @@ function StatCounter({ target, suffix = '' }) {
   return <span ref={ref} className={styles.statValue}>{count}{suffix}</span>;
 }
 
+// ── Curriculum Line Parser ──
+function parseCurriculumLine(line) {
+  if (!line || !line.trim()) return null;
+  const str = line.trim();
+
+  // Pattern 1: Title (topic1, topic2, topic3...)
+  const parenMatch = str.match(/^([^(]+)\s*\((.+)\)\s*$/);
+  if (parenMatch) {
+    const title = parenMatch[1].trim();
+    const details = parenMatch[2].trim();
+    const topics = details.split(',').map(s => s.trim()).filter(Boolean);
+    return {
+      q: title,
+      a: `In this module, you will build and master: ${details}.`,
+      topics: topics
+    };
+  }
+
+  // Pattern 2: Title — Description or Title - Description or Title | Description
+  const dashParts = str.split(/\s+[—\-|]\s+/);
+  if (dashParts.length >= 2) {
+    const title = dashParts[0].trim();
+    const rest = dashParts.slice(1).join(' — ').trim();
+    const topics = rest.split(',').map(s => s.trim()).filter(Boolean);
+    return {
+      q: title,
+      a: rest,
+      topics: topics.length > 1 ? topics : []
+    };
+  }
+
+  // Pattern 3: Week X: Title: Description
+  const colonParts = str.split(':');
+  if (colonParts.length >= 3) {
+    const title = `${colonParts[0].trim()}: ${colonParts[1].trim()}`;
+    const rest = colonParts.slice(2).join(':').trim();
+    const topics = rest.split(',').map(s => s.trim()).filter(Boolean);
+    return {
+      q: title,
+      a: rest,
+      topics: topics.length > 1 ? topics : []
+    };
+  }
+
+  // Fallback
+  return {
+    q: str,
+    a: `Comprehensive hands-on module covering architectural patterns, live code implementation, and industry workflows.`,
+    topics: []
+  };
+}
+
 // ── Accordion item ──
 function AccordionItem({ item, index, isOpen, onToggle }) {
   const bodyRef = useRef(null);
+
+  const question = item?.q || item?.moduleTitle || item?.title || (typeof item === 'string' ? item : '');
+  const answer = item?.a || item?.description || item?.desc || '';
+  const topics = item?.topics || [];
+
   return (
     <div className={`${styles.accordionItem} ${isOpen ? styles.accordionItemOpen : ''}`}>
-      <button className={styles.accordionTrigger} onClick={() => onToggle(index)}>
+      <button 
+        type="button" 
+        className={styles.accordionTrigger} 
+        onClick={() => onToggle(index)}
+        aria-expanded={isOpen}
+      >
         <div className={styles.accordionLeft}>
           <span className={styles.accordionNum}>{String(index + 1).padStart(2, '0')}</span>
-          <span className={styles.accordionQ}>{item.q || item}</span>
+          <span className={styles.accordionQ}>{question}</span>
         </div>
-        <svg className={`${styles.accordionIcon} ${isOpen ? styles.accordionIconOpen : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <svg 
+          className={`${styles.accordionIcon} ${isOpen ? styles.accordionIconOpen : ''}`} 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2.5"
+        >
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
-      <div ref={bodyRef} className={styles.accordionBody} style={{ maxHeight: isOpen ? bodyRef.current?.scrollHeight : 0 }}>
-        <p className={styles.accordionAns}>{item.a || ''}</p>
+      <div 
+        ref={bodyRef} 
+        className={styles.accordionBody} 
+        style={{ 
+          maxHeight: isOpen ? `${(bodyRef.current?.scrollHeight || 300) + 40}px` : '0px' 
+        }}
+      >
+        <div className={styles.accordionInner}>
+          {answer && <p className={styles.accordionAns}>{answer}</p>}
+          {topics.length > 0 && (
+            <div className={styles.accordionTopics}>
+              {topics.map((t, tidx) => (
+                <div key={tidx} className={styles.accordionTopicItem}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={styles.accordionTopicCheck}>
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span>{typeof t === 'string' ? t : (t.title || t.name)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -166,6 +254,7 @@ export default function CourseDetailPage() {
 
   const [course, setCourse] = useState(null);
   const [instructor, setInstructor] = useState(null);
+  const [syllabusModules, setSyllabusModules] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [liveSchedule, setLiveSchedule] = useState([]);
   const [student, setStudent] = useState(null);
@@ -180,15 +269,17 @@ export default function CourseDetailPage() {
     async function loadData() {
       if (!courseId) return;
       try {
-        const [cData, lecturersList, allMaterials, scheduleList] = await Promise.all([
+        const [cData, lecturersList, allMaterials, scheduleList, syllabusList] = await Promise.all([
           getCourseById(courseId),
           getLecturers(),
           getMaterials(),
           getSchedule(),
+          getCourseSyllabus(courseId).catch(() => [])
         ]);
 
         if (!cData) { setLoading(false); return; }
         setCourse(cData);
+        setSyllabusModules(Array.isArray(syllabusList) ? syllabusList : []);
 
         const inst = lecturersList.find(l => l.id === cData.instructorId);
         setInstructor(inst || { name: 'Expert Mentor', expertise: 'Full Stack & Product Engineering', bio: 'Industry veteran with 10+ years building at scale. Passionate about mentoring the next generation of developers.' });
@@ -271,11 +362,41 @@ export default function CourseDetailPage() {
 
   // Parse structured data from course fields
   const highlights = course?.highlights ? course.highlights.split(',').map(s => s.trim()).filter(Boolean) : [];
-  const curriculumLines = course?.curriculumOverview ? course.curriculumOverview.split('\n').filter(s => s.trim()) : [];
   const tools = course?.toolsTechnologies ? course.toolsTechnologies.split(',').map(s => s.trim()).filter(Boolean) : [];
   const outcomes = course?.courseOutcomes ? course.courseOutcomes.split(',').map(s => s.trim()).filter(Boolean) : [];
   let faqs = [];
   try { faqs = course?.faqs ? JSON.parse(course.faqs) : []; } catch { faqs = []; }
+
+  // Curriculum Roadmap items: Prioritize database syllabus modules, fallback to parsed curriculumOverview lines
+  const curriculumRoadmapItems = React.useMemo(() => {
+    if (syllabusModules && syllabusModules.length > 0) {
+      return syllabusModules.map((mod) => ({
+        q: mod.weekNumber ? `Week ${mod.weekNumber}: ${mod.moduleTitle}` : mod.moduleTitle,
+        a: mod.description || '',
+        topics: (mod.topics || []).map(t => t.title || t)
+      }));
+    }
+
+    if (course?.curriculumOverview) {
+      if (course.curriculumOverview.trim().startsWith('[')) {
+        try {
+          const parsed = JSON.parse(course.curriculumOverview);
+          if (Array.isArray(parsed)) {
+            return parsed.map(m => ({
+              q: m.title ? (m.week ? `Week ${m.week}: ${m.title}` : m.title) : (m.q || 'Module'),
+              a: m.desc || m.description || m.a || '',
+              topics: m.topics || []
+            }));
+          }
+        } catch {}
+      }
+
+      const rawLines = course.curriculumOverview.split('\n').map(s => s.trim()).filter(Boolean);
+      return rawLines.map(line => parseCurriculumLine(line)).filter(Boolean);
+    }
+
+    return [];
+  }, [syllabusModules, course?.curriculumOverview]);
 
   // ── Loading state ──
   if (loading) {
@@ -419,7 +540,7 @@ export default function CourseDetailPage() {
                         <div className={styles.heroStatIcon}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                         </div>
-                        <StatCounter target={course.totalModules || String(materials.length || curriculumLines.length || '10')} suffix="+" />
+                        <StatCounter target={course.totalModules || String(materials.length || curriculumRoadmapItems.length || '6')} suffix="+" />
                         <span className={styles.heroStatLabel}>Modules</span>
                       </div>
                     )}
@@ -487,9 +608,9 @@ export default function CourseDetailPage() {
       )}
 
       {/* ═══════════ LEARNING ROADMAP (LIGHT SECTION) ═══════════ */}
-      {(curriculumLines.length > 0 || materials.length > 0) && (
+      {(curriculumRoadmapItems.length > 0 || materials.length > 0) && (
         <section id="curriculum-section" data-theme="light" className={styles.learningRoadmapSection}>
-          {curriculumLines.length > 0 && (
+          {curriculumRoadmapItems.length > 0 && (
             <div className={`${styles.sectionContainer} container`}>
               <Reveal>
                 <div className={styles.sectionLabel}>CURRICULUM ROADMAP</div>
@@ -497,10 +618,10 @@ export default function CourseDetailPage() {
               </Reveal>
 
               <div className={styles.curriculumList}>
-                {curriculumLines.map((line, i) => (
+                {curriculumRoadmapItems.map((item, i) => (
                   <Reveal key={i} delay={i * 40}>
                     <AccordionItem
-                      item={{ q: line.trim(), a: '' }}
+                      item={item}
                       index={i}
                       isOpen={openCurriculum === i}
                       onToggle={(idx) => setOpenCurriculum(openCurriculum === idx ? null : idx)}
@@ -512,7 +633,7 @@ export default function CourseDetailPage() {
           )}
 
           {materials.length > 0 && (
-            <div className={`${styles.sectionContainer} container ${curriculumLines.length > 0 ? styles.syllabusContainerMerged : ''}`}>
+            <div className={`${styles.sectionContainer} container ${curriculumRoadmapItems.length > 0 ? styles.syllabusContainerMerged : ''}`}>
               <Reveal>
                 <div className={styles.sectionLabel}>COURSE MODULES</div>
                 <h2 className={styles.sectionTitle}>Syllabus<br /><span className={styles.textAccent}>Directory Nodes</span></h2>
