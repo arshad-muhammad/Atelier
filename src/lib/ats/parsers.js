@@ -1,9 +1,10 @@
-import { PDFParse } from 'pdf-parse';
+import { extractText } from 'unpdf';
 import mammoth from 'mammoth';
 
 /**
  * Deterministic PDF & DOCX Document Parser for ATS inspection.
  * Zero external AI services or microservices required.
+ * Pure JavaScript, 100% serverless compatible without native canvas bindings.
  */
 export async function parseDocument(fileBuffer, mimeType = '', fileName = '') {
   const ext = (fileName.split('.').pop() || '').toLowerCase();
@@ -17,20 +18,14 @@ export async function parseDocument(fileBuffer, mimeType = '', fileName = '') {
   const links = [];
 
   if (isPdf) {
-    let pdfParser;
     try {
-      pdfParser = new PDFParse({ data: fileBuffer });
-      const pdfData = await pdfParser.getText();
-      fullText = (pdfData.text || '').trim();
-      pageCount = pdfData.total || (pdfData.pages ? pdfData.pages.length : 1);
+      const uint8 = new Uint8Array(fileBuffer);
+      const pdfData = await extractText(uint8);
+      const textVal = pdfData.text;
+      fullText = (Array.isArray(textVal) ? textVal.join('\n\n') : (textVal || '')).trim();
+      pageCount = pdfData.totalPages || 1;
     } catch (err) {
       throw new Error(`Failed to parse PDF document: ${err.message}`);
-    } finally {
-      if (pdfParser && typeof pdfParser.destroy === 'function') {
-        try {
-          await pdfParser.destroy();
-        } catch (_) {}
-      }
     }
 
     // Heuristics for PDF layout inspection
