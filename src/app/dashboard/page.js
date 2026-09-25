@@ -633,7 +633,7 @@ function lockedNode() {
             </span>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: '1.5', marginBottom: '1.25rem' }}>
-            Scan your resume with our self-hosted BGE ATS scanner. Get compatibility score, keyword gap analysis, and recruiter insights.
+            Scan your resume with our built-in deterministic ATS scanner. Get compatibility score, keyword gap analysis, and recruiter insights.
           </p>
 
           <Link 

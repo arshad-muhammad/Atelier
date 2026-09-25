@@ -132,7 +132,7 @@ export default function ResumeCheckerClient() {
         <div className={styles.heroLeft}>
           <div className={styles.badge}>
             <span className={styles.badgeDot} />
-            <span>AI POWERED ATS SCANNER</span>
+            <span>ATS RESUME COMPATIBILITY SCANNER</span>
           </div>
 
           <h1 className={styles.heroTitle}>
@@ -159,15 +159,15 @@ export default function ResumeCheckerClient() {
               <div className={styles.featurePillIcon}>🛡️</div>
               <div className={styles.featurePillText}>
                 <span className={styles.featurePillTitle}>100% Private</span>
-                <span className={styles.featurePillSub}>Zero external AI calls</span>
+                <span className={styles.featurePillSub}>Zero external API calls</span>
               </div>
             </div>
 
             <div className={styles.featurePill}>
               <div className={styles.featurePillIcon}>🎯</div>
               <div className={styles.featurePillText}>
-                <span className={styles.featurePillTitle}>Self-Hosted BGE</span>
-                <span className={styles.featurePillSub}>Deep semantic embeddings</span>
+                <span className={styles.featurePillTitle}>Deterministic ATS</span>
+                <span className={styles.featurePillSub}>Rule-based heuristics</span>
               </div>
             </div>
           </div>
@@ -316,7 +316,7 @@ export default function ResumeCheckerClient() {
                 <span>
                   {analysisStep === 1 && 'Extracting layout & fonts...'}
                   {analysisStep === 2 && 'Indexing skill taxonomy...'}
-                  {analysisStep === 3 && 'Evaluating BGE embeddings...'}
+                  {analysisStep === 3 && 'Evaluating ATS keyword heuristics...'}
                   {analysisStep === 4 && 'Generating compatibility score...'}
                 </span>
               </>
@@ -884,7 +884,7 @@ export default function ResumeCheckerClient() {
             <span className={styles.howStepNum}>2</span>
             <div className={styles.howStepText}>
               <span className={styles.howStepHeading}>Deep ATS Scan</span>
-              <span className={styles.howStepDetail}>Our self-hosted BGE engine scans layout and semantics.</span>
+              <span className={styles.howStepDetail}>Our deterministic ATS engine scans layout and keyword alignment.</span>
             </div>
           </div>
 

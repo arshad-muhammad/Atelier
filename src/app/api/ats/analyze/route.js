@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
-
-const ATS_SERVICE_URL = process.env.ATS_SERVICE_URL || 'http://127.0.0.1:8000';
-const ATS_API_KEY = process.env.ATS_API_KEY || 'atelier-ats-production-key-2026';
+import { analyzeResume } from '@/lib/ats';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // 60 seconds timeout
 
 export async function POST(req) {
   try {
@@ -19,50 +16,41 @@ export async function POST(req) {
       );
     }
 
-    // Prepare outbound multipart/form-data for Python FastAPI service
-    const outboundFormData = new FormData();
-    outboundFormData.append('resume', resumeFile, resumeFile.name);
-    if (jobDescription && typeof jobDescription === 'string') {
-      outboundFormData.append('job_description', jobDescription);
-    }
-
-    // Call dedicated FastAPI ATS microservice
-    const targetUrl = `${ATS_SERVICE_URL.replace(/\/$/, '')}/api/v1/analyze`;
-    const response = await fetch(targetUrl, {
-      method: 'POST',
-      headers: {
-        'x-api-key': ATS_API_KEY,
-      },
-      body: outboundFormData,
-      // Pass signal for timeout if needed
-    });
-
-    if (!response.ok) {
-      let errDetail = 'ATS service analysis failed.';
-      try {
-        const errJson = await response.json();
-        if (errJson.detail) {
-          errDetail = typeof errJson.detail === 'string' ? errJson.detail : JSON.stringify(errJson.detail);
-        }
-      } catch (e) {
-        errDetail = await response.text();
-      }
+    const fileName = resumeFile.name || 'resume.pdf';
+    const ext = (fileName.split('.').pop() || '').toLowerCase();
+    if (!['pdf', 'docx'].includes(ext)) {
       return NextResponse.json(
-        { error: errDetail },
-        { status: response.status }
+        { error: 'Unsupported file format. Please upload a PDF or DOCX file.' },
+        { status: 400 }
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    if (resumeFile.size > 10 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'File exceeds maximum allowed size of 10MB.' },
+        { status: 413 }
+      );
+    }
+
+    const arrayBuffer = await resumeFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const result = await analyzeResume(
+      buffer,
+      fileName,
+      resumeFile.type || '',
+      typeof jobDescription === 'string' ? jobDescription : ''
+    );
+
+    return NextResponse.json(result);
   } catch (err) {
-    console.error('Error connecting to ATS microservice:', err);
+    console.error('Error analyzing resume:', err);
     return NextResponse.json(
       {
-        error: 'Unable to connect to Atelier ATS engine. Please verify the Python ATS service is running on port 8000.',
+        error: 'Failed to analyze resume.',
         details: err.message
       },
-      { status: 503 }
+      { status: 500 }
     );
   }
 }

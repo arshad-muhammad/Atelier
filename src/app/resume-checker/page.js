@@ -49,7 +49,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Free ATS Resume Checker & Compatibility Scanner | Atelier',
     description:
-      'Scan your resume with Atelier\'s self-hosted BGE ATS scanner. Get your score, keyword analysis, and recruiter insights in seconds.',
+      'Scan your resume with Atelier\'s instant deterministic ATS scanner. Get your score, keyword analysis, and recruiter insights in seconds.',
     images: [`${SITE_URL}/og-banner.png`],
     creator: '@spherehive',
   },
@@ -75,7 +75,7 @@ const webApplicationSchema = {
   name: 'Atelier ATS Resume Checker',
   url: `${SITE_URL}/resume-checker`,
   description:
-    'Free production-grade ATS Resume Analyzer and compatibility scoring engine powered by local BGE embeddings. Audits document layout, keyword match, and experience relevance.',
+    'Free production-grade ATS Resume Analyzer and compatibility scoring engine powered by deterministic keyword and layout heuristics. Audits document layout, keyword match, and experience relevance.',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'All',
   browserRequirements: 'Requires JavaScript. Requires HTML5.',
@@ -94,9 +94,9 @@ const webApplicationSchema = {
   },
   featureList: [
     'Atelier Resume Compatibility Score calculation',
-    'PyMuPDF layout and column formatting inspection',
+    'Native layout and column formatting inspection',
     'Deep multi-tier keyword and skill taxonomy matching',
-    'BGE semantic embeddings for job description alignment',
+    'Deterministic keyword alignment for job descriptions without AI',
     'Deterministic bullet-point impact recommendations',
     'Automatic PII masking and 100% private in-memory analysis'
   ],
@@ -116,7 +116,7 @@ const faqSchema = {
       name: 'How does the Atelier ATS Resume Checker calculate the compatibility score?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'The Atelier Resume Compatibility Score is calculated using 6 weighted dimensions: Keyword Match (35 points), Semantic Relevance via local BGE embeddings (25 points), Required Skills Coverage (20 points), Resume Structure (10 points), Layout & Formatting (5 points), and Contact Information (5 points). The score is fully transparent and explainable.',
+        text: 'The Atelier Resume Compatibility Score is calculated using 6 weighted dimensions: Keyword Match (35 points), Content Relevance & Alignment (25 points), Required Skills Coverage (20 points), Resume Structure (10 points), Layout & Formatting (5 points), and Contact Information (5 points). The score is fully transparent, deterministic, and explainable.',
       },
     },
     {
@@ -254,7 +254,7 @@ export default function ResumeCheckerPage() {
                   How does the Atelier Compatibility Score differ from an official ATS score?
                 </h4>
                 <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6 }}>
-                  There is no single universal &quot;official ATS score&quot; in the industry because each enterprise software (Workday, Taleo, Greenhouse) uses distinct proprietary scoring rules. Atelier provides an estimated compatibility score based on verified industry heuristics: text parsability, section ordering, skill coverage, and semantic vector relevance.
+                  There is no single universal &quot;official ATS score&quot; in the industry because each enterprise software (Workday, Taleo, Greenhouse) uses distinct proprietary scoring rules. Atelier provides an estimated compatibility score based on verified industry heuristics: text parsability, section ordering, skill coverage, and keyword alignment.
                 </p>
               </div>
 
@@ -263,7 +263,7 @@ export default function ResumeCheckerPage() {
                   Is my resume data kept private?
                 </h4>
                 <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6 }}>
-                  Yes, 100%. We run our own self-hosted open-source BGE embedding model. Your resume is never uploaded to third-party commercial APIs (such as OpenAI, Gemini, or Claude), phone numbers and emails are automatically masked, and files are discarded immediately following analysis.
+                  Yes, 100%. We run our analysis completely in-process using deterministic rule-based algorithms without using any AI models or third-party commercial APIs (such as OpenAI, Gemini, or Claude). Phone numbers and emails are automatically masked, and files are discarded immediately following analysis.
                 </p>
               </div>
 
