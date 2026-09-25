@@ -335,7 +335,9 @@ export default function AdminConsole() {
       }
       if (activeTab === 'lecturers') {
         initialData.avatar = initialData.avatar || '/images/avatar1.jpg';
-        initialData.assignedCourses = Array.isArray(entity.assignedCourses) ? [...entity.assignedCourses] : [];
+        initialData.assignedCourses = Array.isArray(entity.assignedCourses)
+          ? entity.assignedCourses.map(id => Number(id)).filter(id => !isNaN(id) && id > 0)
+          : [];
         initialData.password = '';
         initialData.mustChangePassword = entity.mustChangePassword !== undefined ? Boolean(entity.mustChangePassword) : false;
       }
@@ -356,7 +358,7 @@ export default function AdminConsole() {
           badges: 'Live Cohort, Small Batches (~10), Live Projects on GitHub', 
           image: '/images/course_cohort_2.png', 
           batchStartDate: '', 
-          instructorId: '1', 
+          instructorId: lecturers[0]?.id ? String(lecturers[0].id) : '', 
           duration: '6 Weeks', 
           highlights: '', 
           curriculumOverview: '', 
@@ -417,7 +419,7 @@ export default function AdminConsole() {
           image: (formData.image && formData.image.trim()) ? formData.image.trim() : '/images/course_cohort_2.png',
           batchStartDate: formData.batchStartDate ? formData.batchStartDate.trim() : null,
           badges: typeof formData.badges === 'string' ? formData.badges.split(',').map(s => s.trim()) : formData.badges,
-          instructorId: parseInt(formData.instructorId || 1, 10),
+          instructorId: formData.instructorId ? parseInt(formData.instructorId, 10) : null,
           duration: formData.duration || null,
           highlights: formData.highlights || null,
           curriculumOverview: formData.curriculumOverview || null,
@@ -460,8 +462,12 @@ export default function AdminConsole() {
         }
         await saveMaterial(formattedMaterial);
       } else if (activeTab === 'lecturers') {
+        const cleanAssignedCourses = (formData.assignedCourses || [])
+          .map(id => parseInt(id, 10))
+          .filter(id => !isNaN(id) && id > 0);
         const formattedLecturer = { 
           ...formData,
+          assignedCourses: cleanAssignedCourses,
           avatar: (formData.avatar && formData.avatar.trim()) ? formData.avatar.trim() : '/images/avatar1.jpg'
         };
         if (modalMode === 'edit') {
@@ -475,7 +481,8 @@ export default function AdminConsole() {
         }
       }
 
-      // Close modal and reload lists
+      // Reload database data immediately and sync
+      await loadData();
       window.dispatchEvent(new Event('courseChanged'));
       setShowModal(false);
     } catch (err) {
@@ -1356,7 +1363,7 @@ export default function AdminConsole() {
               </thead>
               <tbody>
                 {filteredLecturers.map((l) => {
-                  const assignedCourseList = courses.filter(c => (l.assignedCourses || []).includes(c.id));
+                  const assignedCourseList = courses.filter(c => (l.assignedCourses || []).some(id => Number(id) === Number(c.id)));
 
                   return (
                     <tr key={l.id}>
@@ -1783,7 +1790,8 @@ export default function AdminConsole() {
                   </div>
                   <div className={styles.profileFormGroup}>
                     <label className={styles.modalLabel}>Assigned Course Instructor (Lecturer)</label>
-                    <select name="instructorId" className={styles.modalSelect} value={formData.instructorId || '1'} onChange={handleFormChange}>
+                    <select name="instructorId" className={styles.modalSelect} value={formData.instructorId !== undefined && formData.instructorId !== null ? String(formData.instructorId) : ''} onChange={handleFormChange}>
+                      <option value="">-- No Instructor Assigned --</option>
                       {lecturers.map((l) => (
                         <option key={l.id} value={l.id}>{l.name} ({l.expertise})</option>
                       ))}
@@ -2012,19 +2020,28 @@ export default function AdminConsole() {
                     <label className={styles.modalLabel}>Assigned Cohorts (Mentorship Access)</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '0.5rem 0', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '6px', paddingLeft: '10px' }}>
                       {courses.map(course => {
-                        const isAssigned = (formData.assignedCourses || []).includes(course.id);
+                        const courseIdNum = Number(course.id);
+                        const isAssigned = (formData.assignedCourses || []).some(id => Number(id) === courseIdNum);
                         return (
                           <label key={course.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: isAssigned ? '#ffffff' : 'rgba(255,255,255,0.6)' }}>
                             <input
                               type="checkbox"
                               checked={isAssigned}
                               onChange={(e) => {
-                                const current = formData.assignedCourses || [];
-                                if (e.target.checked) {
-                                  setFormData(prev => ({ ...prev, assignedCourses: [...current, course.id] }));
-                                } else {
-                                  setFormData(prev => ({ ...prev, assignedCourses: current.filter(id => id !== course.id) }));
-                                }
+                                setFormData(prev => {
+                                  const current = (prev.assignedCourses || []).map(id => Number(id));
+                                  if (e.target.checked) {
+                                    return {
+                                      ...prev,
+                                      assignedCourses: Array.from(new Set([...current, courseIdNum]))
+                                    };
+                                  } else {
+                                    return {
+                                      ...prev,
+                                      assignedCourses: current.filter(id => id !== courseIdNum)
+                                    };
+                                  }
+                                });
                               }}
                             />
                             <span>{course.title}</span>

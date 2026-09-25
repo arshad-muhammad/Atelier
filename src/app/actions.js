@@ -305,20 +305,34 @@ export async function saveCourse(c) {
     }
 
     let courseId = c.id;
+    const targetInstructorId = (c.instructorId !== undefined && c.instructorId !== '' && c.instructorId !== null)
+      ? parseInt(c.instructorId, 10)
+      : ((c.instructor_id !== undefined && c.instructor_id !== '' && c.instructor_id !== null) ? parseInt(c.instructor_id, 10) : null);
+
     if (exists) {
+      const oldRows = await query("SELECT instructor_id FROM atelier_courses WHERE id = ?", [c.id]);
+      const oldInstructorId = oldRows?.[0]?.instructor_id;
+
       await execute(
         `UPDATE atelier_courses SET title = ?, description = ?, image = ?, badges = ?, price = ?, original_price = ?, discount = ?, instructor_id = ?, duration = ?, highlights = ?, curriculum_overview = ?, subtitle = ?, total_hours = ?, total_modules = ?, total_projects = ?, tools_technologies = ?, faqs = ?, certificate_title = ?, course_outcomes = ?, batch_start_date = ? WHERE id = ?`,
-        [c.title, c.description, courseImage, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, c.instructorId || c.instructor_id || null, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null, batchStartDate, c.id]
+        [c.title, c.description, courseImage, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, targetInstructorId, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null, batchStartDate, c.id]
       );
+
+      // If instructor was changed or removed, remove previous instructor link from atelier_mentor_courses
+      if (oldInstructorId && oldInstructorId !== targetInstructorId) {
+        await execute(
+          "DELETE FROM atelier_mentor_courses WHERE mentor_id = ? AND course_id = ?",
+          [oldInstructorId, c.id]
+        );
+      }
     } else {
       const res = await execute(
         `INSERT INTO atelier_courses (title, description, image, badges, price, original_price, discount, instructor_id, duration, highlights, curriculum_overview, subtitle, total_hours, total_modules, total_projects, tools_technologies, faqs, certificate_title, course_outcomes, batch_start_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [c.title, c.description, courseImage, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, c.instructorId || c.instructor_id || null, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null, batchStartDate]
+        [c.title, c.description, courseImage, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, targetInstructorId, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null, batchStartDate]
       );
       courseId = res.insertId;
     }
 
-    const targetInstructorId = c.instructorId || c.instructor_id || null;
     if (targetInstructorId && courseId) {
       try {
         await execute(
@@ -908,12 +922,7 @@ export async function getLecturers() {
     );
     for (const l of lecturers) {
       const assigned = await query("SELECT course_id FROM atelier_mentor_courses WHERE mentor_id = ?", [l.id]);
-      const instructorCourses = await query("SELECT id as course_id FROM atelier_courses WHERE instructor_id = ?", [l.id]);
-      const combined = Array.from(new Set([
-        ...assigned.map(a => a.course_id),
-        ...instructorCourses.map(a => a.course_id)
-      ]));
-      l.assignedCourses = combined;
+      l.assignedCourses = assigned.map(a => Number(a.course_id));
     }
     return lecturers;
   } catch (e) {
@@ -938,6 +947,8 @@ export async function saveLecturer(l) {
     try {
       await conn.beginTransaction();
 
+      let targetMentorId = l.id;
+
       if (exists) {
         // Update existing mentor
         let updateSql = "UPDATE atelier_lecturers SET name = ?, email = ?, expertise = ?, bio = ?, phone = ?, avatar = ?";
@@ -959,14 +970,6 @@ export async function saveLecturer(l) {
         updateParams.push(l.id);
 
         await conn.execute(updateSql, updateParams);
-
-        // Sync assigned courses
-        if (Array.isArray(l.assignedCourses)) {
-          await conn.execute("DELETE FROM atelier_mentor_courses WHERE mentor_id = ?", [l.id]);
-          for (const cId of l.assignedCourses) {
-            await conn.execute("INSERT INTO atelier_mentor_courses (mentor_id, course_id) VALUES (?, ?)", [l.id, cId]);
-          }
-        }
       } else {
         // Create new mentor - use admin-provided password or auto-generate secure temp password
         const chosenPassword = (l.password && l.password.trim() !== '') ? l.password.trim() : generateTempPassword(10);
@@ -979,13 +982,35 @@ export async function saveLecturer(l) {
           [l.name, l.email, passHash, mustChange, l.expertise || null, l.bio || null, l.phone || null, mentorAvatar]
         );
 
-        const newMentorId = result.insertId;
+        targetMentorId = result.insertId;
+      }
 
-        // Assign courses
-        if (Array.isArray(l.assignedCourses)) {
-          for (const cId of l.assignedCourses) {
-            await conn.execute("INSERT INTO atelier_mentor_courses (mentor_id, course_id) VALUES (?, ?)", [newMentorId, cId]);
-          }
+      // Sync assigned courses
+      if (l.assignedCourses !== undefined && targetMentorId) {
+        const cleanAssignedCourseIds = Array.isArray(l.assignedCourses)
+          ? Array.from(new Set(l.assignedCourses.map(id => parseInt(id, 10)).filter(id => !isNaN(id) && id > 0)))
+          : [];
+
+        // 1. Delete all previous assignments for this mentor
+        await conn.execute("DELETE FROM atelier_mentor_courses WHERE mentor_id = ?", [targetMentorId]);
+
+        // 2. Insert only the active assigned courses
+        for (const cId of cleanAssignedCourseIds) {
+          await conn.execute("INSERT INTO atelier_mentor_courses (mentor_id, course_id) VALUES (?, ?)", [targetMentorId, cId]);
+        }
+
+        // 3. Clear instructor_id from atelier_courses for any courses unassigned from this mentor
+        if (cleanAssignedCourseIds.length > 0) {
+          const placeholders = cleanAssignedCourseIds.map(() => '?').join(',');
+          await conn.execute(
+            `UPDATE atelier_courses SET instructor_id = NULL WHERE instructor_id = ? AND id NOT IN (${placeholders})`,
+            [targetMentorId, ...cleanAssignedCourseIds]
+          );
+        } else {
+          await conn.execute(
+            "UPDATE atelier_courses SET instructor_id = NULL WHERE instructor_id = ?",
+            [targetMentorId]
+          );
         }
       }
 
@@ -1875,13 +1900,31 @@ export async function getMentorCourses(mentorId) {
  */
 export async function assignCoursesToMentor(mentorId, courseIds = []) {
   try {
+    const cleanCourseIds = Array.isArray(courseIds)
+      ? Array.from(new Set(courseIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id) && id > 0)))
+      : [];
+
     const conn = await getConnection();
     try {
       await conn.beginTransaction();
       await conn.execute("DELETE FROM atelier_mentor_courses WHERE mentor_id = ?", [mentorId]);
-      for (const cId of courseIds) {
+      for (const cId of cleanCourseIds) {
         await conn.execute("INSERT INTO atelier_mentor_courses (mentor_id, course_id) VALUES (?, ?)", [mentorId, cId]);
       }
+
+      if (cleanCourseIds.length > 0) {
+        const placeholders = cleanCourseIds.map(() => '?').join(',');
+        await conn.execute(
+          `UPDATE atelier_courses SET instructor_id = NULL WHERE instructor_id = ? AND id NOT IN (${placeholders})`,
+          [mentorId, ...cleanCourseIds]
+        );
+      } else {
+        await conn.execute(
+          "UPDATE atelier_courses SET instructor_id = NULL WHERE instructor_id = ?",
+          [mentorId]
+        );
+      }
+
       await conn.commit();
     } catch (txErr) {
       await conn.rollback();

@@ -71,7 +71,7 @@ export default function LecturerDetailsAdmin() {
   }
 
   // Find courses assigned to this lecturer
-  const assignedCourses = courses.filter(c => c.instructorId === lecturerId);
+  const assignedCourses = courses.filter(c => (lecturer.assignedCourses || []).some(id => Number(id) === Number(c.id)) || c.instructorId === lecturerId);
   const assignedCourseIds = assignedCourses.map(c => c.id);
 
   // Filter students under this lecturer

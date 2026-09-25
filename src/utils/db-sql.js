@@ -434,12 +434,15 @@ async function runFullSchemaMigration(p) {
     ) ENGINE=InnoDB
   `);
 
-  // Backfill mentor courses from existing instructor_id on courses
+  // Initial backfill of mentor courses from existing instructor_id ONLY if table is empty
   try {
-    await p.execute(`
-      INSERT IGNORE INTO atelier_mentor_courses (mentor_id, course_id)
-      SELECT instructor_id, id FROM atelier_courses WHERE instructor_id IS NOT NULL
-    `);
+    const [mcRows] = await p.execute("SELECT COUNT(*) as count FROM atelier_mentor_courses");
+    if (mcRows?.[0]?.count === 0) {
+      await p.execute(`
+        INSERT IGNORE INTO atelier_mentor_courses (mentor_id, course_id)
+        SELECT instructor_id, id FROM atelier_courses WHERE instructor_id IS NOT NULL
+      `);
+    }
   } catch (err) {}
 
   // ─── LIVE SESSIONS TABLE ───
@@ -739,12 +742,15 @@ async function runFullSchemaMigration(p) {
     console.warn("Seeding default courses note:", err.message);
   }
 
-  // Backfill mentor courses from existing instructor_id on courses
+  // Initial backfill of mentor courses from existing instructor_id ONLY if table is empty
   try {
-    await p.execute(`
-      INSERT IGNORE INTO atelier_mentor_courses (mentor_id, course_id)
-      SELECT instructor_id, id FROM atelier_courses WHERE instructor_id IS NOT NULL
-    `);
+    const [mcRows2] = await p.execute("SELECT COUNT(*) as count FROM atelier_mentor_courses");
+    if (mcRows2?.[0]?.count === 0) {
+      await p.execute(`
+        INSERT IGNORE INTO atelier_mentor_courses (mentor_id, course_id)
+        SELECT instructor_id, id FROM atelier_courses WHERE instructor_id IS NOT NULL
+      `);
+    }
   } catch (err) {}
 
   // Retrieve all existing course IDs to strictly avoid foreign key constraint violations
