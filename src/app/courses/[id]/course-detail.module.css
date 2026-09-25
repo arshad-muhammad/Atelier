@@ -276,7 +276,7 @@
 .heroContent {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: 5rem;
+  gap: clamp(2.5rem, 4vw, 5rem);
   align-items: center;
 }
 
@@ -425,12 +425,13 @@
 .heroRight {
   display: flex;
   justify-content: flex-end;
+  width: 100%;
 }
 
 .heroStatsCard {
   width: 100%;
-  max-width: 440px;
-  border-radius: 24px;
+  max-width: 460px;
+  border-radius: 20px;
   background: #0d0d10;
   border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
@@ -441,9 +442,9 @@
 }
 
 .heroStatsCard:hover {
-  transform: translateY(-4px);
-  border-color: rgba(242, 85, 34, 0.4);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(242, 85, 34, 0.1);
+  transform: translateY(-3px);
+  border-color: rgba(242, 85, 34, 0.35);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(242, 85, 34, 0.08);
 }
 
 .heroStatsCard::before {
@@ -457,10 +458,10 @@
 .heroStatsCardInner {
   position: relative;
   z-index: 1;
-  padding: 1.5rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .heroCourseImg {
@@ -468,68 +469,97 @@
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 16/9;
+  background: #141419;
 }
 
 .heroCourseImg img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .heroCourseImgOverlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .heroStatsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
 }
 
 .heroStatItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  padding: 1rem 0.5rem;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.85rem 0.3rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
   text-align: center;
-  transition: all 0.3s;
+  transition: all 0.25s ease;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .heroStatItem:hover {
-  background: rgba(242,85,34,0.06);
-  border-color: rgba(242,85,34,0.2);
+  background: rgba(242, 85, 34, 0.06);
+  border-color: rgba(242, 85, 34, 0.25);
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(242, 85, 34, 0.08);
 }
 
 .heroStatIcon {
-  width: 22px;
-  height: 22px;
-  color: var(--accent-orange);
-  opacity: 0.7;
+  width: 20px;
+  height: 20px;
+  color: var(--accent-orange, #f25522);
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 0.1rem;
 }
 
-.heroStatIcon svg { width: 100%; height: 100%; }
+.heroStatIcon svg { 
+  width: 100%; 
+  height: 100%; 
+}
 
 .statValue {
   font-family: var(--font-heading);
-  font-size: 1.35rem;
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
   font-weight: 800;
   color: #fff;
-  line-height: 1;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 .heroStatLabel {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.4);
+  font-size: clamp(0.58rem, 1vw, 0.65rem);
+  color: rgba(255, 255, 255, 0.45);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 .heroLiveStrip {
@@ -562,82 +592,143 @@
 /* ═══════════ OUTCOMES SECTION ═══════════ */
 .outcomesSection {
   position: relative;
-  background: #000;
-  border-top: 1px solid rgba(255,255,255,0.04);
+  background: #08080a;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .outcomesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.35rem;
 }
 
 .outcomeCard {
   position: relative;
-  padding: 1.75rem 1.5rem;
-  background: #0d0d10;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.6rem 1.45rem;
+  background: linear-gradient(145deg, rgba(24, 24, 30, 0.7) 0%, rgba(13, 13, 16, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 20px;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 190px;
 }
 
 .outcomeCard::before {
   content: '';
   position: absolute;
-  bottom: 0; left: 0;
+  top: 0; left: 0;
   width: 100%; height: 2px;
-  background: linear-gradient(90deg, var(--accent-orange), transparent);
-  opacity: 0;
+  background: linear-gradient(90deg, var(--accent-orange), transparent 75%);
+  opacity: 0.3;
   transition: opacity 0.35s;
 }
 
 .outcomeCard:hover { 
-  transform: translateY(-4px); 
-  border-color: rgba(242, 85, 34, 0.4); 
-  background: #111115;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(242, 85, 34, 0.08);
-}
-.outcomeCard:hover::before { opacity: 1; }
-
-.outcomeCardNum {
-  font-family: var(--font-heading);
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: rgba(255,255,255,0.06);
-  line-height: 1;
-  margin-bottom: 0.75rem;
+  transform: translateY(-5px); 
+  border-color: rgba(242, 85, 34, 0.45); 
+  background: linear-gradient(145deg, rgba(30, 30, 38, 0.8) 0%, rgba(16, 16, 20, 0.98) 100%);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 25px rgba(242, 85, 34, 0.1);
 }
 
-.outcomeCardLine {
-  width: 32px;
-  height: 2px;
-  background: var(--accent-orange);
-  margin-bottom: 1rem;
-  border-radius: 1px;
+.outcomeCard:hover::before { 
+  opacity: 1; 
 }
 
-.outcomeCardCheck {
-  width: 24px;
-  height: 24px;
-  background: rgba(242, 85, 34, 0.12);
-  border: 1px solid rgba(242, 85, 34, 0.3);
-  border-radius: 50%;
+.outcomeCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.outcomeIconBadge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(242, 85, 34, 0.1);
+  border: 1px solid rgba(242, 85, 34, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--accent-orange);
-  margin-bottom: 0.85rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
-.outcomeCardCheck svg { width: 13px; height: 13px; }
+.outcomeIconBadge svg {
+  width: 20px;
+  height: 20px;
+}
+
+.outcomeCard:hover .outcomeIconBadge {
+  transform: scale(1.08);
+  background: rgba(242, 85, 34, 0.18);
+  border-color: rgba(242, 85, 34, 0.45);
+  box-shadow: 0 0 15px rgba(242, 85, 34, 0.2);
+}
+
+.outcomeNumber {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.2rem 0.65rem;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.outcomeContent {
+  flex: 1;
+}
 
 .outcomeCardText {
-  font-size: 0.92rem;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.55;
-  font-weight: 500;
+  font-size: 1.02rem;
+  color: #ffffff;
+  line-height: 1.45;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.outcomeFooter {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+}
+
+.outcomeStatusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.22rem 0.6rem;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.3s ease;
+}
+
+.outcomeStatusPill svg {
+  width: 12px;
+  height: 12px;
+  color: var(--accent-orange);
+}
+
+.outcomeCard:hover .outcomeStatusPill {
+  color: var(--accent-orange);
+  background: rgba(242, 85, 34, 0.08);
+  border-color: rgba(242, 85, 34, 0.25);
 }
 
 /* ═══════════ LEARNING ROADMAP (LIGHT SECTION) ═══════════ */
@@ -894,65 +985,101 @@
 .toolsSection {
   position: relative;
   background: #050505;
-  border-top: 1px solid rgba(255,255,255,0.04);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .toolsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1.1rem;
 }
 
 .toolCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 0.85rem;
   padding: 1.5rem 1rem;
-  background: #0d0d10;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 18px;
   cursor: default;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .toolCard::before {
   content: '';
   position: absolute;
-  bottom: 0; left: 0;
-  width: 100%; height: 100%;
-  background: radial-gradient(circle at 50% 120%, rgba(242,85,34,0.07), transparent 70%);
+  inset: 0;
+  background: radial-gradient(circle at 50% 120%, rgba(242, 85, 34, 0.12), transparent 70%);
   opacity: 0;
   transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .toolCard:hover { 
-  transform: translateY(-5px) scale(1.02); 
+  transform: translateY(-4px) scale(1.02); 
   border-color: rgba(242, 85, 34, 0.4); 
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 20px rgba(242, 85, 34, 0.1);
 }
 .toolCard:hover::before { opacity: 1; }
 
-.toolIcon {
-  width: 40px;
-  height: 40px;
+.toolIconWrap {
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.toolCard:hover .toolIcon { transform: scale(1.1); }
-.toolIcon svg { width: 100%; height: 100%; }
+.toolCard:hover .toolIconWrap { 
+  transform: scale(1.12); 
+}
+
+.toolImg {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  display: block;
+}
+
+.toolFallbackBadge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(242, 85, 34, 0.12);
+  border: 1px solid rgba(242, 85, 34, 0.3);
+  color: var(--accent-orange);
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.05em;
+}
+
+.toolIconWrap svg { 
+  width: 100%; 
+  height: 100%; 
+}
 
 .toolName {
-  font-size: 0.73rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.85);
   text-align: center;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* ═══════════ INSTRUCTOR SECTION ═══════════ */
@@ -1539,13 +1666,14 @@
 @media (max-width: 1024px) {
   .heroContent {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2.5rem;
   }
   .heroRight {
-    justify-content: stretch;
+    justify-content: center;
   }
   .heroStatsCard {
-    max-width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
   }
   .certCard {
     grid-template-columns: 1fr;
@@ -1564,9 +1692,21 @@
 @media (max-width: 768px) {
   .heroTitle { font-size: 2.2rem; }
   .sectionTitle { font-size: 1.9rem; }
-  .heroStatsGrid { grid-template-columns: repeat(2, 1fr); }
-  .outcomesGrid { grid-template-columns: 1fr; }
-  .toolsGrid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+  .heroStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  .heroStatItem {
+    padding: 0.85rem 0.5rem;
+  }
+  .statValue {
+    font-size: 1.25rem;
+  }
+  .heroStatLabel {
+    font-size: 0.65rem;
+  }
+  .outcomesGrid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+  .toolsGrid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.85rem; }
   .syllabusGrid { grid-template-columns: 1fr; }
   .instructorStats { gap: 1.25rem; flex-wrap: wrap; }
   .heroActions { flex-direction: column; align-items: stretch; }
@@ -1614,8 +1754,28 @@
 }
 
 @media (max-width: 480px) {
-  .heroStatsGrid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+  .heroStatsCardInner {
+    padding: 1rem;
+    gap: 0.85rem;
+  }
+  .heroStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+  .heroStatItem {
+    padding: 0.75rem 0.35rem;
+  }
+  .statValue {
+    font-size: 1.15rem;
+  }
+  .heroStatLabel {
+    font-size: 0.6rem;
+  }
   .heroTitle { font-size: 1.9rem; }
+  .outcomesGrid { grid-template-columns: 1fr; gap: 0.85rem; }
+  .outcomeCard { padding: 1.35rem 1.2rem; min-height: auto; }
+  .toolsGrid { grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 0.65rem; }
+  .toolCard { padding: 1.2rem 0.65rem; }
   .sectionTitle { font-size: 1.6rem; margin-bottom: 2rem; }
   .accordionQ { font-size: 0.88rem; }
   .pricingCardSection {
@@ -1670,5 +1830,25 @@
   }
   .pricingPerkItem {
     font-size: 0.86rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .heroStatsCardInner {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  .heroStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+  .heroStatItem {
+    padding: 0.65rem 0.25rem;
+  }
+  .statValue {
+    font-size: 1.05rem;
+  }
+  .heroStatLabel {
+    font-size: 0.55rem;
   }
 }

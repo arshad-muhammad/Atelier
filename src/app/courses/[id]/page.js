@@ -59,47 +59,334 @@ const TOOL_ICONS = {
   ),
 };
 
-const getToolIcon = (toolName) => {
-  const key = toolName.trim().toLowerCase();
-  return TOOL_ICONS[key] || (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+// ── Tech slug normalizer for logos ──
+function getTechSlug(name) {
+  if (!name) return '';
+  const clean = name.trim().toLowerCase();
+  
+  const slugMap = {
+    'c++': 'cpp',
+    'c#': 'cs',
+    'node.js': 'nodejs',
+    'nodejs': 'nodejs',
+    'node': 'nodejs',
+    'next.js': 'nextjs',
+    'nextjs': 'nextjs',
+    'next': 'nextjs',
+    'vue.js': 'vue',
+    'vuejs': 'vue',
+    'vue': 'vue',
+    'react.js': 'react',
+    'reactjs': 'react',
+    'react': 'react',
+    'react native': 'react',
+    'tailwind': 'tailwind',
+    'tailwindcss': 'tailwind',
+    'tailwind css': 'tailwind',
+    'express.js': 'express',
+    'expressjs': 'express',
+    'express': 'express',
+    'postgres': 'postgres',
+    'postgresql': 'postgres',
+    'mongo': 'mongodb',
+    'mongodb': 'mongodb',
+    'golang': 'go',
+    'amazon web services': 'aws',
+    'amazon aws': 'aws',
+    'aws': 'aws',
+    'html': 'html',
+    'html5': 'html',
+    'css': 'css',
+    'css3': 'css',
+    'javascript': 'js',
+    'js': 'js',
+    'typescript': 'ts',
+    'ts': 'ts',
+    'scikit-learn': 'scikitlearn',
+    'scikitlearn': 'scikitlearn',
+    'sklearn': 'scikitlearn',
+    'spring boot': 'spring',
+    'springboot': 'spring',
+    'rest api': 'postman',
+    'rest': 'postman',
+    'restful api': 'postman',
+    'api': 'postman',
+    'apis': 'postman',
+    'github': 'github',
+    'git': 'git',
+    'docker': 'docker',
+    'kubernetes': 'kubernetes',
+    'k8s': 'kubernetes',
+    'figma': 'figma',
+    'linux': 'linux',
+    'bash': 'bash',
+    'shell': 'bash',
+    'redis': 'redis',
+    'mysql': 'mysql',
+    'sqlite': 'sqlite',
+    'firebase': 'firebase',
+    'supabase': 'supabase',
+    'graphql': 'graphql',
+    'flutter': 'flutter',
+    'dart': 'dart',
+    'android': 'android',
+    'ios': 'apple',
+    'apple': 'apple',
+    'swift': 'swift',
+    'kotlin': 'kotlin',
+    'java': 'java',
+    'python': 'python',
+    'django': 'django',
+    'fastapi': 'fastapi',
+    'flask': 'flask',
+    'pandas': 'pandas',
+    'numpy': 'numpy',
+    'tensorflow': 'tensorflow',
+    'pytorch': 'pytorch',
+    'matplotlib': 'matplotlib',
+    'postman': 'postman',
+    'vscode': 'vscode',
+    'vs code': 'vscode',
+    'prisma': 'prisma',
+    'redux': 'redux',
+    'sass': 'sass',
+    'bootstrap': 'bootstrap',
+    'vite': 'vite',
+    'webpack': 'webpack',
+    'jenkins': 'jenkins',
+    'ansible': 'ansible',
+    'terraform': 'terraform',
+    'kafka': 'kafka',
+    'rabbitmq': 'rabbitmq',
+    'rust': 'rust',
+    'ruby': 'ruby',
+    'rails': 'rails',
+    'php': 'php',
+    'laravel': 'laravel',
+    'jupyter': 'jupyter',
+    'opencv': 'opencv'
+  };
+
+  if (slugMap[clean]) return slugMap[clean];
+  return clean.replace(/[^a-z0-9]/g, '');
+}
+
+// ── Dynamic Multi-tier Tech Logo Component ──
+function TechLogo({ tool }) {
+  const [sourceIndex, setSourceIndex] = useState(0);
+  const [allFailed, setAllFailed] = useState(false);
+  const slug = getTechSlug(tool);
+  const cleanKey = tool.trim().toLowerCase();
+
+  // Tiered CDN sources for official logos
+  const sources = [
+    `https://skillicons.dev/icons?i=${slug}`,
+    `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${slug}/${slug}-original.svg`,
+    `https://cdn.simpleicons.org/${slug}`,
+    `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${slug}/${slug}-plain.svg`
+  ];
+
+  const handleImgError = () => {
+    if (sourceIndex < sources.length - 1) {
+      setSourceIndex(prev => prev + 1);
+    } else {
+      setAllFailed(true);
+    }
+  };
+
+  const localIcon = TOOL_ICONS[cleanKey] || TOOL_ICONS[slug];
+
+  if (allFailed) {
+    if (localIcon) {
+      return <div className={styles.toolIconWrap}>{localIcon}</div>;
+    }
+    return (
+      <div className={styles.toolFallbackBadge}>
+        <span>{tool.slice(0, 2).toUpperCase()}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.toolIconWrap}>
+      <img
+        src={sources[sourceIndex]}
+        alt={tool}
+        className={styles.toolImg}
+        loading="lazy"
+        onError={handleImgError}
+      />
+    </div>
+  );
+}
+
+// ── Smart Outcome Icon Selector ──
+function getOutcomeIcon(text) {
+  const t = (text || '').toLowerCase();
+  
+  if (t.includes('api') || t.includes('rest') || t.includes('endpoint') || t.includes('http') || t.includes('backend') || t.includes('request')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+    );
+  }
+  if (t.includes('data') || t.includes('database') || t.includes('sql') || t.includes('table') || t.includes('query') || t.includes('store')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+      </svg>
+    );
+  }
+  if (t.includes('program') || t.includes('code') || t.includes('syntax') || t.includes('scratch') || t.includes('script') || t.includes('develop')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </svg>
+    );
+  }
+  if (t.includes('structure') || t.includes('modular') || t.includes('architecture') || t.includes('pattern') || t.includes('system')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+        <polyline points="2 17 12 22 22 17" />
+        <polyline points="2 12 12 17 22 12" />
+      </svg>
+    );
+  }
+  if (t.includes('object') || t.includes('oop') || t.includes('class') || t.includes('component')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+        <line x1="12" y1="22.08" x2="12" y2="12" />
+      </svg>
+    );
+  }
+  if (t.includes('file') || t.includes('json') || t.includes('csv') || t.includes('document')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+      </svg>
+    );
+  }
+  if (t.includes('automate') || t.includes('bot') || t.includes('task') || t.includes('workflow') || t.includes('fast')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+    );
+  }
+  if (t.includes('test') || t.includes('debug') || t.includes('secure') || t.includes('auth') || t.includes('quality')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <polyline points="9 12 11 14 15 10" />
+      </svg>
+    );
+  }
+  if (t.includes('deploy') || t.includes('cloud') || t.includes('server') || t.includes('host') || t.includes('ci/cd')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+        <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+        <line x1="6" y1="6" x2="6.01" y2="6" />
+        <line x1="6" y1="18" x2="6.01" y2="18" />
+      </svg>
+    );
+  }
+  if (t.includes('ai') || t.includes('model') || t.includes('learn') || t.includes('neural') || t.includes('smart')) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9-9 9-9-1.8-9-9 1.8-9 9-9z" />
+        <path d="M12 8v8" />
+        <path d="M8 12h8" />
+      </svg>
+    );
+  }
+  
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
-};
+}
+
+// ── Helper to extract clean numeric value and suffix ──
+function parseStatTarget(target, defaultSuffix = '') {
+  if (!target) return { numeric: 0, suffix: defaultSuffix, isNumeric: false, raw: '' };
+  const str = String(target).trim();
+
+  // If already special format like 24/7 or ratio
+  if (/^\d+\/\d+/.test(str)) {
+    return { numeric: 0, suffix: '', isNumeric: false, raw: str };
+  }
+
+  // Extract first number
+  const match = str.match(/\d+/);
+  if (!match) {
+    return { numeric: 0, suffix: '', isNumeric: false, raw: str };
+  }
+
+  const numeric = parseInt(match[0], 10);
+  const hasPlus = str.includes('+');
+  const suffix = hasPlus ? '+' : defaultSuffix;
+
+  return { numeric, suffix, isNumeric: true, raw: `${numeric}${suffix}` };
+}
 
 // ── Animated stat counter ──
 function StatCounter({ target, suffix = '' }) {
-  const [count, setCount] = useState(0);
+  const parsed = parseStatTarget(target, suffix);
+  const [count, setCount] = useState(parsed.isNumeric ? 0 : parsed.raw);
   const ref = useRef(null);
   const started = useRef(false);
 
   useEffect(() => {
-    const numericTarget = parseInt(target?.replace(/\D/g, '') || '0', 10);
-    if (!numericTarget) { setCount(target || '0'); return; }
+    if (!parsed.isNumeric || !parsed.numeric) {
+      setCount(parsed.raw);
+      return;
+    }
 
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !started.current) {
         started.current = true;
-        let start = 0;
-        const duration = 1800;
+        let start = null;
+        const duration = 1600;
         const step = (timestamp) => {
           if (!start) start = timestamp;
           const progress = Math.min((timestamp - start) / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 3);
-          setCount(Math.floor(eased * numericTarget));
-          if (progress < 1) requestAnimationFrame(step);
-          else setCount(target);
+          setCount(Math.floor(eased * parsed.numeric));
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            setCount(parsed.numeric);
+          }
         };
         requestAnimationFrame(step);
       }
-    }, { threshold: 0.5 });
+    }, { threshold: 0.2 });
 
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [target]);
+  }, [target, suffix]);
 
-  return <span ref={ref} className={styles.statValue}>{count}{suffix}</span>;
+  return (
+    <span ref={ref} className={styles.statValue}>
+      {count}
+      {parsed.isNumeric ? parsed.suffix : ''}
+    </span>
+  );
 }
 
 // ── Curriculum Line Parser ──
@@ -534,33 +821,30 @@ export default function CourseDetailPage() {
                   </div>
 
                   <div className={styles.heroStatsGrid}>
-                    {(course.totalHours || course.duration) && (
-                      <div className={styles.heroStatItem}>
-                        <div className={styles.heroStatIcon}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        </div>
-                        <StatCounter target={course.totalHours || '100'} suffix="+" />
-                        <span className={styles.heroStatLabel}>Live Hours</span>
+                    <div className={styles.heroStatItem}>
+                      <div className={styles.heroStatIcon}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                       </div>
-                    )}
-                    {(course.totalModules || materials.length > 0) && (
-                      <div className={styles.heroStatItem}>
-                        <div className={styles.heroStatIcon}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                        </div>
-                        <StatCounter target={course.totalModules || String(materials.length || curriculumRoadmapItems.length || '6')} suffix="+" />
-                        <span className={styles.heroStatLabel}>Modules</span>
+                      <StatCounter target={course.totalHours || course.duration || '60'} suffix="+" />
+                      <span className={styles.heroStatLabel}>Live Hours</span>
+                    </div>
+
+                    <div className={styles.heroStatItem}>
+                      <div className={styles.heroStatIcon}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                       </div>
-                    )}
-                    {course.totalProjects && (
-                      <div className={styles.heroStatItem}>
-                        <div className={styles.heroStatIcon}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
-                        </div>
-                        <StatCounter target={course.totalProjects} suffix="+" />
-                        <span className={styles.heroStatLabel}>Projects</span>
+                      <StatCounter target={course.totalModules || String(materials.length || curriculumRoadmapItems.length || '6')} suffix="+" />
+                      <span className={styles.heroStatLabel}>Modules</span>
+                    </div>
+
+                    <div className={styles.heroStatItem}>
+                      <div className={styles.heroStatIcon}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
                       </div>
-                    )}
+                      <StatCounter target={course.totalProjects || '3'} suffix="+" />
+                      <span className={styles.heroStatLabel}>Projects</span>
+                    </div>
+
                     <div className={styles.heroStatItem}>
                       <div className={styles.heroStatIcon}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -599,14 +883,29 @@ export default function CourseDetailPage() {
 
             <div className={styles.outcomesGrid}>
               {(outcomes.length > 0 ? outcomes : highlights).map((item, i) => (
-                <Reveal key={i} delay={i * 60}>
+                <Reveal key={i} delay={i * 45}>
                   <div className={styles.outcomeCard}>
-                    <div className={styles.outcomeCardNum}>{String(i + 1).padStart(2, '0')}</div>
-                    <div className={styles.outcomeCardLine} />
-                    <div className={styles.outcomeCardCheck}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <div className={styles.outcomeCardHeader}>
+                      <div className={styles.outcomeIconBadge}>
+                        {getOutcomeIcon(item)}
+                      </div>
+                      <span className={styles.outcomeNumber}>
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
                     </div>
-                    <p className={styles.outcomeCardText}>{item}</p>
+
+                    <div className={styles.outcomeContent}>
+                      <h3 className={styles.outcomeCardText}>{item}</h3>
+                    </div>
+
+                    <div className={styles.outcomeFooter}>
+                      <span className={styles.outcomeStatusPill}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Industry Competency
+                      </span>
+                    </div>
                   </div>
                 </Reveal>
               ))}
@@ -689,9 +988,9 @@ export default function CourseDetailPage() {
 
             <div className={styles.toolsGrid}>
               {tools.map((tool, i) => (
-                <Reveal key={i} delay={i * 50}>
+                <Reveal key={i} delay={i * 40}>
                   <div className={styles.toolCard}>
-                    <div className={styles.toolIcon}>{getToolIcon(tool)}</div>
+                    <TechLogo tool={tool} />
                     <span className={styles.toolName}>{tool}</span>
                   </div>
                 </Reveal>
