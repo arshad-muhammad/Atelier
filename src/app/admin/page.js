@@ -81,6 +81,8 @@ export default function AdminConsole() {
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({});
   const [adminUploading, setAdminUploading] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   // Check sessionStorage for admin clearances
   useEffect(() => {
@@ -327,7 +329,12 @@ export default function AdminConsole() {
       if (activeTab === 'materials' && entity.assets) {
         initialData.assetsJson = JSON.stringify(entity.assets, null, 2);
       }
+      if (activeTab === 'courses') {
+        initialData.image = initialData.image || '/images/course_cohort_2.png';
+        initialData.batchStartDate = initialData.batchStartDate || initialData.batch_start_date || '';
+      }
       if (activeTab === 'lecturers') {
+        initialData.avatar = initialData.avatar || '/images/avatar1.jpg';
         initialData.assignedCourses = Array.isArray(entity.assignedCourses) ? [...entity.assignedCourses] : [];
         initialData.password = '';
         initialData.mustChangePassword = entity.mustChangePassword !== undefined ? Boolean(entity.mustChangePassword) : false;
@@ -339,13 +346,44 @@ export default function AdminConsole() {
       if (activeTab === 'users') {
         setFormData({ name: '', email: '', phone: '', college: '', gradYear: '2026', xp: 0, streak: 0, enrolledCourses: '1' });
       } else if (activeTab === 'courses') {
-        setFormData({ title: '', description: '', price: 'Rs. 5999', originalPrice: 'Rs. 11998', discount: '50% OFF', badges: 'Certified, support', image: '/images/course_cohort_2.png', instructorId: '1', duration: '12 Weeks', highlights: '', curriculumOverview: '', subtitle: '', totalHours: '', totalModules: '', totalProjects: '', toolsTechnologies: '', faqs: '[]', certificateTitle: '', courseOutcomes: '' });
+        setFormData({ 
+          title: '', 
+          subtitle: '', 
+          description: '', 
+          price: 'Rs. 3999', 
+          originalPrice: 'Rs. 4500', 
+          discount: '11% OFF', 
+          badges: 'Live Cohort, Small Batches (~10), Live Projects on GitHub', 
+          image: '/images/course_cohort_2.png', 
+          batchStartDate: '', 
+          instructorId: '1', 
+          duration: '6 Weeks', 
+          highlights: '', 
+          curriculumOverview: '', 
+          totalHours: '60+ Hours', 
+          totalModules: '6 Modules', 
+          totalProjects: '2 Live Projects', 
+          toolsTechnologies: 'HTML, CSS, Tailwind, JavaScript, Node.js, Express, MongoDB, Git, Linux', 
+          faqs: '[]', 
+          certificateTitle: '', 
+          courseOutcomes: '' 
+        });
       } else if (activeTab === 'live') {
         setFormData({ courseId: '1', time: 'Today, 6:00 PM', title: '', type: 'Lecture' });
       } else if (activeTab === 'materials') {
         setFormData({ courseId: '1', title: '', assetsJson: '[]' });
       } else if (activeTab === 'lecturers') {
-        setFormData({ name: '', email: '', phone: '', expertise: '', bio: '', assignedCourses: [], password: '', mustChangePassword: true });
+        setFormData({ 
+          name: '', 
+          email: '', 
+          phone: '', 
+          expertise: '', 
+          bio: '', 
+          avatar: '/images/avatar1.jpg', 
+          assignedCourses: [], 
+          password: '', 
+          mustChangePassword: true 
+        });
       }
     }
     setShowModal(true);
@@ -376,6 +414,8 @@ export default function AdminConsole() {
       } else if (activeTab === 'courses') {
         const formattedCourse = {
           ...formData,
+          image: (formData.image && formData.image.trim()) ? formData.image.trim() : '/images/course_cohort_2.png',
+          batchStartDate: formData.batchStartDate ? formData.batchStartDate.trim() : null,
           badges: typeof formData.badges === 'string' ? formData.badges.split(',').map(s => s.trim()) : formData.badges,
           instructorId: parseInt(formData.instructorId || 1, 10),
           duration: formData.duration || null,
@@ -420,7 +460,10 @@ export default function AdminConsole() {
         }
         await saveMaterial(formattedMaterial);
       } else if (activeTab === 'lecturers') {
-        const formattedLecturer = { ...formData };
+        const formattedLecturer = { 
+          ...formData,
+          avatar: (formData.avatar && formData.avatar.trim()) ? formData.avatar.trim() : '/images/avatar1.jpg'
+        };
         if (modalMode === 'edit') {
           formattedLecturer.id = editId;
         }
@@ -505,6 +548,111 @@ export default function AdminConsole() {
       alert('Upload error: ' + err.message);
     } finally {
       setAdminUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleCourseCoverUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (PNG, JPG, WEBP, SVG).');
+      return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      alert('Image file size exceeds the 20 MB limit.');
+      return;
+    }
+
+    setCoverUploading(true);
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      body.append('category', 'course_cover');
+      body.append('adminKey', securityKey || 'ARSHAD-SAMVRUDHI');
+
+      const res = await fetch('/api/files/upload', {
+        method: 'POST',
+        headers: {
+          'x-admin-key': securityKey || 'ARSHAD-SAMVRUDHI'
+        },
+        body
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.file?.url) {
+        setFormData(prev => ({ ...prev, image: data.file.url }));
+        alert(`Course cover "${file.name}" uploaded successfully!`);
+      } else {
+        // Fallback to direct client-side Data URL
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          setFormData(prev => ({ ...prev, image: re.target.result }));
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (re) => {
+        setFormData(prev => ({ ...prev, image: re.target.result }));
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setCoverUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleMentorAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (PNG, JPG, WEBP, SVG).');
+      return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      alert('Image file size exceeds the 20 MB limit.');
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      body.append('category', 'mentor_avatar');
+      body.append('adminKey', securityKey || 'ARSHAD-SAMVRUDHI');
+
+      const res = await fetch('/api/files/upload', {
+        method: 'POST',
+        headers: {
+          'x-admin-key': securityKey || 'ARSHAD-SAMVRUDHI'
+        },
+        body
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.file?.url) {
+        setFormData(prev => ({ ...prev, avatar: data.file.url }));
+        alert(`Mentor photo "${file.name}" uploaded successfully!`);
+      } else {
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          setFormData(prev => ({ ...prev, avatar: re.target.result }));
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (re) => {
+        setFormData(prev => ({ ...prev, avatar: re.target.result }));
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setAvatarUploading(false);
       e.target.value = '';
     }
   };
@@ -833,9 +981,11 @@ export default function AdminConsole() {
               <thead>
                 <tr>
                   <th>ID</th>
+                  <th>Cover</th>
                   <th>Title</th>
                   <th>Price</th>
                   <th>Discount</th>
+                  <th>Batch Starts</th>
                   <th>Badges</th>
                   <th>Enrolled Students</th>
                   <th>Actions</th>
@@ -845,13 +995,30 @@ export default function AdminConsole() {
                 {filteredCourses.map((c) => (
                   <tr key={c.id}>
                     <td>{c.id}</td>
-                    <td style={{ maxWidth: '280px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={c.title}>
+                    <td>
+                      <img 
+                        src={c.image || '/images/course_cohort_2.png'} 
+                        alt={c.title} 
+                        style={{ width: '48px', height: '30px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }} 
+                        onError={(e) => { e.currentTarget.src = '/images/course_cohort_2.png'; }}
+                      />
+                    </td>
+                    <td style={{ maxWidth: '240px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={c.title}>
                       <a href={`/admin/courses/${c.id}`} style={{ color: 'var(--accent-orange)', fontWeight: '600', textDecoration: 'underline' }}>
                         {c.title}
                       </a>
                     </td>
                     <td>{c.price || 'Free'}</td>
                     <td>{c.discount || 'N/A'}</td>
+                    <td>
+                      {c.batchStartDate || c.batch_start_date ? (
+                        <span className={styles.adminBadge} style={{ background: 'rgba(255, 152, 0, 0.12)', border: '1px solid rgba(255, 152, 0, 0.3)', color: '#ff9800', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
+                          {c.batchStartDate || c.batch_start_date}
+                        </span>
+                      ) : (
+                        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>Immediate</span>
+                      )}
+                    </td>
                     <td>{c.badges ? c.badges.join(', ') : ''}</td>
                     <td>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -871,7 +1038,7 @@ export default function AdminConsole() {
                     </td>
                   </tr>
                 ))}
-                {filteredCourses.length === 0 && <tr><td colSpan="7" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', padding: '2rem' }}>No cohort databases matching filters.</td></tr>}
+                {filteredCourses.length === 0 && <tr><td colSpan="9" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)', padding: '2rem' }}>No cohort databases matching filters.</td></tr>}
               </tbody>
             </table>
           )}
@@ -1195,20 +1362,30 @@ export default function AdminConsole() {
                     <tr key={l.id}>
                       <td>{l.id}</td>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: '700', color: '#ffffff' }}>{l.name}</span>
-                          {l.lockedUntil && new Date(l.lockedUntil) > new Date() && (
-                            <span className={styles.adminBadge} style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '0.65rem' }}>
-                              Locked
-                            </span>
-                          )}
-                          {l.mustChangePassword ? (
-                            <span className={styles.adminBadge} style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', fontSize: '0.65rem' }}>
-                              Must Reset Pass
-                            </span>
-                          ) : null}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <img 
+                            src={l.avatar || '/images/avatar1.jpg'} 
+                            alt={l.name} 
+                            style={{ width: '34px', height: '34px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(242, 85, 34, 0.4)', flexShrink: 0 }}
+                            onError={(e) => { e.currentTarget.src = '/images/avatar1.jpg'; }}
+                          />
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                              <span style={{ fontWeight: '700', color: '#ffffff' }}>{l.name}</span>
+                              {l.lockedUntil && new Date(l.lockedUntil) > new Date() && (
+                                <span className={styles.adminBadge} style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '0.65rem' }}>
+                                  Locked
+                                </span>
+                              )}
+                              {l.mustChangePassword ? (
+                                <span className={styles.adminBadge} style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', fontSize: '0.65rem' }}>
+                                  Must Reset Pass
+                                </span>
+                              ) : null}
+                            </div>
+                            {l.role && <span style={{ fontSize: '0.7rem', color: 'var(--accent-orange)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>{l.role}</span>}
+                          </div>
                         </div>
-                        {l.role && <span style={{ fontSize: '0.7rem', color: 'var(--accent-orange)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{l.role}</span>}
                       </td>
                       <td>
                         <div>{l.email}</div>
@@ -1426,6 +1603,83 @@ export default function AdminConsole() {
               {activeTab === 'courses' && (
                 <>
                   <div className={styles.profileFormGroup}>
+                    <label className={styles.modalLabel}>Course Cover Image</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+                      <div style={{
+                        width: '110px',
+                        height: '64px',
+                        borderRadius: '6px',
+                        overflow: 'hidden',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        background: '#111',
+                        flexShrink: 0
+                      }}>
+                        <img 
+                          src={formData.image || '/images/course_cohort_2.png'} 
+                          alt="Cover preview" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => { e.currentTarget.src = '/images/course_cohort_2.png'; }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: '1 1 200px' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                          <label style={{ 
+                            cursor: coverUploading ? 'wait' : 'pointer', 
+                            color: 'var(--accent-orange, #f25522)', 
+                            fontSize: '0.78rem', 
+                            fontWeight: '700',
+                            background: 'rgba(242, 85, 34, 0.1)',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '4px',
+                            border: '1px solid rgba(242, 85, 34, 0.3)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                          }}>
+                            {coverUploading ? '⏳ Uploading...' : '📁 Upload Cover Image'}
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              style={{ display: 'none' }} 
+                              onChange={handleCourseCoverUpload} 
+                              disabled={coverUploading} 
+                            />
+                          </label>
+                          {formData.image && formData.image !== '/images/course_cohort_2.png' && (
+                            <button
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, image: '/images/course_cohort_2.png' }))}
+                              style={{
+                                background: 'transparent',
+                                border: '1px solid rgba(255,255,255,0.15)',
+                                color: 'rgba(255,255,255,0.6)',
+                                fontSize: '0.75rem',
+                                padding: '0.35rem 0.65rem',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Reset to Default
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text" 
+                          name="image" 
+                          className={styles.modalInput} 
+                          placeholder="/images/course_cohort_2.png" 
+                          value={formData.image || ''} 
+                          onChange={handleFormChange} 
+                          style={{ fontSize: '0.78rem' }}
+                        />
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>
+                      Upload custom cover or enter image URL. If left empty, default cover (/images/course_cohort_2.png) is used.
+                    </span>
+                  </div>
+
+                  <div className={styles.profileFormGroup}>
                     <label className={styles.modalLabel}>Course Title</label>
                     <input type="text" name="title" required className={styles.modalInput} value={formData.title || ''} onChange={handleFormChange} />
                   </div>
@@ -1454,9 +1708,23 @@ export default function AdminConsole() {
                       <input type="text" name="discount" className={styles.modalInput} value={formData.discount || ''} onChange={handleFormChange} />
                     </div>
                     <div className={styles.profileFormGroup}>
-                      <label className={styles.modalLabel}>Duration (e.g. 12 Weeks)</label>
-                      <input type="text" name="duration" className={styles.modalInput} placeholder="12 Weeks" value={formData.duration || ''} onChange={handleFormChange} />
+                      <label className={styles.modalLabel}>Duration (e.g. 6 Weeks)</label>
+                      <input type="text" name="duration" className={styles.modalInput} placeholder="6 Weeks" value={formData.duration || ''} onChange={handleFormChange} />
                     </div>
+                  </div>
+                  <div className={styles.profileFormGroup}>
+                    <label className={styles.modalLabel}>Starting of Batch (Commencement)</label>
+                    <input 
+                      type="text" 
+                      name="batchStartDate" 
+                      className={styles.modalInput} 
+                      placeholder="e.g. Late Nov – Early Jan or Nov 25, 2026" 
+                      value={formData.batchStartDate || ''} 
+                      onChange={handleFormChange} 
+                    />
+                    <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', marginTop: '0.2rem' }}>
+                      When this cohort starts — displayed across catalog cards and the course hero section
+                    </span>
                   </div>
                   <div className={styles.formRow}>
                     <div className={styles.profileFormGroup}>
@@ -1608,6 +1876,83 @@ export default function AdminConsole() {
               {/* TAB INPUTS: MENTORS */}
               {activeTab === 'lecturers' && (
                 <>
+                  <div className={styles.profileFormGroup}>
+                    <label className={styles.modalLabel}>Mentor Photo / Avatar</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+                      <div style={{
+                        width: '64px',
+                        height: '64px',
+                        borderRadius: '50%',
+                        overflow: 'hidden',
+                        border: '2px solid rgba(242, 85, 34, 0.4)',
+                        background: '#1a1a1a',
+                        flexShrink: 0
+                      }}>
+                        <img 
+                          src={formData.avatar || '/images/avatar1.jpg'} 
+                          alt="Mentor avatar preview" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => { e.currentTarget.src = '/images/avatar1.jpg'; }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: '1 1 200px' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                          <label style={{ 
+                            cursor: avatarUploading ? 'wait' : 'pointer', 
+                            color: 'var(--accent-orange, #f25522)', 
+                            fontSize: '0.78rem', 
+                            fontWeight: '700',
+                            background: 'rgba(242, 85, 34, 0.1)',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '4px',
+                            border: '1px solid rgba(242, 85, 34, 0.3)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                          }}>
+                            {avatarUploading ? '⏳ Uploading...' : '👤 Upload Mentor Photo'}
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              style={{ display: 'none' }} 
+                              onChange={handleMentorAvatarUpload} 
+                              disabled={avatarUploading} 
+                            />
+                          </label>
+                          {formData.avatar && formData.avatar !== '/images/avatar1.jpg' && (
+                            <button
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, avatar: '/images/avatar1.jpg' }))}
+                              style={{
+                                background: 'transparent',
+                                border: '1px solid rgba(255,255,255,0.15)',
+                                color: 'rgba(255,255,255,0.6)',
+                                fontSize: '0.75rem',
+                                padding: '0.35rem 0.65rem',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Reset to Default
+                            </button>
+                          )}
+                        </div>
+                        <input 
+                          type="text" 
+                          name="avatar" 
+                          className={styles.modalInput} 
+                          placeholder="/images/avatar1.jpg" 
+                          value={formData.avatar || ''} 
+                          onChange={handleFormChange} 
+                          style={{ fontSize: '0.78rem' }}
+                        />
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>
+                      Upload mentor headshot or enter image URL. If left empty, default portrait (/images/avatar1.jpg) is used.
+                    </span>
+                  </div>
+
                   <div className={styles.profileFormGroup}>
                     <label className={styles.modalLabel}>Mentor Full Name</label>
                     <input type="text" name="name" required className={styles.modalInput} value={formData.name || ''} onChange={handleFormChange} />

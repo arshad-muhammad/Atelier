@@ -62,6 +62,15 @@ export default function CoursesPage() {
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
         );
+      case 'calendar':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        );
       default:
         return null;
     }
@@ -145,10 +154,11 @@ export default function CoursesPage() {
                     {/* Course Thumbnail Image */}
                     <div className={styles.imageWrapper}>
                       <img 
-                        src={course.image} 
+                        src={course.image || '/images/course_cohort_2.png'} 
                         alt={course.title} 
                         className={styles.image} 
                         loading="lazy"
+                        onError={(e) => { e.currentTarget.src = '/images/course_cohort_2.png'; }}
                       />
                       <div className={styles.imageOverlay} />
                       
@@ -169,9 +179,14 @@ export default function CoursesPage() {
                     {/* Card Content Area */}
                     <div className={styles.cardContent}>
                       {/* Badges List */}
-                      {course.badges && course.badges.length > 0 && (
+                      {((course.badges && course.badges.length > 0) || course.batchStartDate) && (
                         <div className={styles.badgeList}>
-                          {course.badges.map((badge, idx) => (
+                          {course.batchStartDate && (
+                            <span className={styles.cardBadge} style={{ background: 'rgba(242, 85, 34, 0.08)', borderColor: 'rgba(242, 85, 34, 0.3)', color: 'var(--accent-orange)', fontWeight: 700 }}>
+                              Starts: {course.batchStartDate}
+                            </span>
+                          )}
+                          {course.badges && course.badges.map((badge, idx) => (
                             <span key={idx} className={styles.cardBadge}>
                               {badge}
                             </span>
@@ -191,6 +206,12 @@ export default function CoursesPage() {
 
                       {/* Key Value Highlights */}
                       <div className={styles.featuresRow}>
+                        {course.batchStartDate && (
+                          <div className={styles.featurePill} style={{ borderColor: 'rgba(242, 85, 34, 0.25)', color: 'var(--accent-orange)' }}>
+                            <div className={styles.featurePillIcon}>{renderIcon('calendar')}</div>
+                            <span>Starts {course.batchStartDate}</span>
+                          </div>
+                        )}
                         <div className={styles.featurePill}>
                           <div className={styles.featurePillIcon}>{renderIcon('clock')}</div>
                           <span>{course.duration || '6-7 Months'}</span>

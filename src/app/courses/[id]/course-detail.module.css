@@ -319,6 +319,21 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.heroBatchDate {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.45);
+  padding: 0.25rem 0.85rem;
+  border-radius: 50px;
+  background: rgba(255, 152, 0, 0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .heroTitle {
   font-family: var(--font-heading);
   font-size: clamp(2.5rem, 5vw, 3.75rem);

@@ -146,6 +146,9 @@ async function runFullSchemaMigration(p) {
   if (!courseColNames.includes('course_outcomes')) {
     await p.execute("ALTER TABLE atelier_courses ADD COLUMN course_outcomes TEXT");
   }
+  if (!courseColNames.includes('batch_start_date')) {
+    await p.execute("ALTER TABLE atelier_courses ADD COLUMN batch_start_date VARCHAR(100) NULL");
+  }
 
   await p.execute(`
     CREATE TABLE IF NOT EXISTS atelier_students (

@@ -241,6 +241,7 @@ export async function getCourses() {
       c.toolsTechnologies = c.tools_technologies;
       c.certificateTitle = c.certificate_title;
       c.courseOutcomes = c.course_outcomes;
+      c.batchStartDate = c.batch_start_date;
       delete c.instructor_id;
       delete c.original_price;
       delete c.curriculum_overview;
@@ -250,6 +251,7 @@ export async function getCourses() {
       delete c.tools_technologies;
       delete c.certificate_title;
       delete c.course_outcomes;
+      delete c.batch_start_date;
     });
     return courses;
   } catch (e) {
@@ -273,6 +275,7 @@ export async function getCourseById(id) {
     c.toolsTechnologies = c.tools_technologies;
     c.certificateTitle = c.certificate_title;
     c.courseOutcomes = c.course_outcomes;
+    c.batchStartDate = c.batch_start_date;
     delete c.instructor_id;
     delete c.original_price;
     delete c.curriculum_overview;
@@ -282,6 +285,7 @@ export async function getCourseById(id) {
     delete c.tools_technologies;
     delete c.certificate_title;
     delete c.course_outcomes;
+    delete c.batch_start_date;
     return c;
   } catch (e) {
     console.error("SQL Error in getCourseById:", e);
@@ -292,6 +296,8 @@ export async function getCourseById(id) {
 export async function saveCourse(c) {
   try {
     const badgesStr = Array.isArray(c.badges) ? c.badges.join(',') : (c.badges || '');
+    const courseImage = (c.image && String(c.image).trim()) ? String(c.image).trim() : '/images/course_cohort_2.png';
+    const batchStartDate = (c.batchStartDate || c.batch_start_date || '').trim() || null;
     let exists = null;
     if (c.id) {
       const rows = await query("SELECT id FROM atelier_courses WHERE id = ?", [c.id]);
@@ -301,13 +307,13 @@ export async function saveCourse(c) {
     let courseId = c.id;
     if (exists) {
       await execute(
-        `UPDATE atelier_courses SET title = ?, description = ?, image = ?, badges = ?, price = ?, original_price = ?, discount = ?, instructor_id = ?, duration = ?, highlights = ?, curriculum_overview = ?, subtitle = ?, total_hours = ?, total_modules = ?, total_projects = ?, tools_technologies = ?, faqs = ?, certificate_title = ?, course_outcomes = ? WHERE id = ?`,
-        [c.title, c.description, c.image, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, c.instructorId || c.instructor_id || null, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null, c.id]
+        `UPDATE atelier_courses SET title = ?, description = ?, image = ?, badges = ?, price = ?, original_price = ?, discount = ?, instructor_id = ?, duration = ?, highlights = ?, curriculum_overview = ?, subtitle = ?, total_hours = ?, total_modules = ?, total_projects = ?, tools_technologies = ?, faqs = ?, certificate_title = ?, course_outcomes = ?, batch_start_date = ? WHERE id = ?`,
+        [c.title, c.description, courseImage, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, c.instructorId || c.instructor_id || null, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null, batchStartDate, c.id]
       );
     } else {
       const res = await execute(
-        `INSERT INTO atelier_courses (title, description, image, badges, price, original_price, discount, instructor_id, duration, highlights, curriculum_overview, subtitle, total_hours, total_modules, total_projects, tools_technologies, faqs, certificate_title, course_outcomes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [c.title, c.description, c.image, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, c.instructorId || c.instructor_id || null, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null]
+        `INSERT INTO atelier_courses (title, description, image, badges, price, original_price, discount, instructor_id, duration, highlights, curriculum_overview, subtitle, total_hours, total_modules, total_projects, tools_technologies, faqs, certificate_title, course_outcomes, batch_start_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [c.title, c.description, courseImage, badgesStr, c.price, c.originalPrice || c.original_price, c.discount, c.instructorId || c.instructor_id || null, c.duration || null, c.highlights || null, c.curriculumOverview || c.curriculum_overview || null, c.subtitle || null, c.totalHours || c.total_hours || null, c.totalModules || c.total_modules || null, c.totalProjects || c.total_projects || null, c.toolsTechnologies || c.tools_technologies || null, c.faqs || null, c.certificateTitle || c.certificate_title || null, c.courseOutcomes || c.course_outcomes || null, batchStartDate]
       );
       courseId = res.insertId;
     }
@@ -927,13 +933,15 @@ export async function saveLecturer(l) {
     const conn = await getConnection();
     let tempPassword = null;
 
+    const mentorAvatar = (l.avatar && String(l.avatar).trim()) ? String(l.avatar).trim() : '/images/avatar1.jpg';
+
     try {
       await conn.beginTransaction();
 
       if (exists) {
         // Update existing mentor
         let updateSql = "UPDATE atelier_lecturers SET name = ?, email = ?, expertise = ?, bio = ?, phone = ?, avatar = ?";
-        let updateParams = [l.name, l.email, l.expertise || null, l.bio || null, l.phone || null, l.avatar || null];
+        let updateParams = [l.name, l.email, l.expertise || null, l.bio || null, l.phone || null, mentorAvatar];
 
         if (l.password && l.password.trim() !== '') {
           const rawPass = l.password.trim();
@@ -968,7 +976,7 @@ export async function saveLecturer(l) {
 
         const [result] = await conn.execute(
           "INSERT INTO atelier_lecturers (name, email, password_hash, must_change_password, expertise, bio, phone, avatar, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'mentor')",
-          [l.name, l.email, passHash, mustChange, l.expertise || null, l.bio || null, l.phone || null, l.avatar || null]
+          [l.name, l.email, passHash, mustChange, l.expertise || null, l.bio || null, l.phone || null, mentorAvatar]
         );
 
         const newMentorId = result.insertId;

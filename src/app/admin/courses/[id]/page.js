@@ -125,11 +125,22 @@ export default function CourseDetailsAdmin() {
         
         {/* Course details card */}
         <div style={{ background: '#09090a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '1.5rem' }}>
-          <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cohort Information block</span>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', fontWeight: '800', marginTop: '0.25rem', color: '#ffffff' }}>
-            {course.title}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginTop: '0.75rem', lineHeight: '1.5' }}>
+          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+            <img 
+              src={course.image || '/images/course_cohort_2.png'} 
+              alt={course.title} 
+              style={{ width: '130px', height: '74px', objectFit: 'cover', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} 
+              onError={(e) => { e.currentTarget.src = '/images/course_cohort_2.png'; }}
+            />
+            <div>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cohort Information block</span>
+              <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', fontWeight: '800', marginTop: '0.25rem', color: '#ffffff' }}>
+                {course.title}
+              </h1>
+              {course.subtitle && <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>{course.subtitle}</p>}
+            </div>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginTop: '0.5rem', lineHeight: '1.5' }}>
             {course.description}
           </p>
 
@@ -139,6 +150,13 @@ export default function CourseDetailsAdmin() {
               <p style={{ color: '#2ecc71', fontWeight: '800', fontSize: '1.2rem', marginTop: '0.2rem' }}>
                 {course.price} <span style={{ textDecoration: 'line-through', color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem', fontWeight: '400', marginLeft: '0.5rem' }}>{course.originalPrice}</span>
                 <span style={{ color: 'var(--accent-orange)', fontSize: '0.8rem', marginLeft: '0.5rem' }}>({course.discount})</span>
+              </p>
+            </div>
+
+            <div style={{ flex: '1 1 200px' }}>
+              <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>Starting of Batch</span>
+              <p style={{ color: '#ff9800', fontWeight: '700', fontSize: '1.1rem', marginTop: '0.2rem' }}>
+                {course.batchStartDate || 'Immediate'}
               </p>
             </div>
             
