@@ -575,25 +575,42 @@ export default function AdminConsole() {
 
     setCoverUploading(true);
     try {
-      const body = new FormData();
-      body.append('file', file);
-      body.append('category', 'course_cover');
-      body.append('adminKey', securityKey || 'ARSHAD-SAMVRUDHI');
+      // 1. Get authentication parameters from our Next.js API
+      const authRes = await fetch("/api/imagekit/auth");
+      if (!authRes.ok) {
+        let errMessage = "Failed to authenticate with ImageKit";
+        try {
+          const errData = await authRes.json();
+          if (errData.error) errMessage = errData.error;
+        } catch(e) {}
+        throw new Error(errMessage);
+      }
+      const { signature, expire, token } = await authRes.json();
 
-      const res = await fetch('/api/files/upload', {
-        method: 'POST',
-        headers: {
-          'x-admin-key': securityKey || 'ARSHAD-SAMVRUDHI'
-        },
-        body
+      // 2. Prepare FormData for ImageKit
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+      formDataUpload.append("publicKey", process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || '');
+      formDataUpload.append("signature", signature);
+      formDataUpload.append("expire", expire);
+      formDataUpload.append("token", token);
+      formDataUpload.append("fileName", file.name);
+      formDataUpload.append("folder", "/course-covers");
+      formDataUpload.append("useUniqueFileName", "true");
+
+      // 3. Upload to ImageKit
+      const uploadRes = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
+        method: "POST",
+        body: formDataUpload,
       });
 
-      const data = await res.json();
-      if (res.ok && data.success && data.file?.url) {
-        setFormData(prev => ({ ...prev, image: data.file.url }));
-        alert(`Course cover "${file.name}" uploaded successfully!`);
+      const data = await uploadRes.json();
+
+      if (uploadRes.ok && data.url) {
+        setFormData(prev => ({ ...prev, image: data.url }));
+        alert(`Course cover "${file.name}" uploaded to Cloud Storage successfully!`);
       } else {
-        alert('Upload failed: ' + (data.error || 'Unknown error occurred.'));
+        alert('Upload failed: ' + (data.message || 'Unknown error occurred.'));
       }
     } catch (err) {
       alert('Upload failed: ' + err.message);
@@ -1628,14 +1645,23 @@ export default function AdminConsole() {
                           }}>
                             {coverUploading ? '⏳ Uploading...' : '📁 Upload Cover Image'}
                             <input 
-                              type="file" 
-                              accept="image/*" 
-                              style={{ display: 'none' }} 
-                              onChange={handleCourseCoverUpload} 
-                              disabled={coverUploading} 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                onChange={handleCourseCoverUpload} 
+                                disabled={coverUploading} 
+                              />
+                            </label>
+                            <input
+                              type="text"
+                              name="image"
+                              className={styles.modalInput}
+                              style={{ margin: 0, flex: '1 1 120px', fontSize: '0.75rem', padding: '0.4rem 0.6rem', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '4px', background: 'rgba(255,255,255,0.03)', color: '#fff' }}
+                              placeholder="Or paste cloud URL"
+                              value={formData.image || ''}
+                              onChange={handleFormChange}
                             />
-                          </label>
-                          {formData.image && formData.image !== '/images/course_cohort_2.png' && (
+                            {formData.image && formData.image !== '/images/course_cohort_2.png' && (
                             <button
                               type="button"
                               onClick={() => setFormData(prev => ({ ...prev, image: '/images/course_cohort_2.png' }))}
