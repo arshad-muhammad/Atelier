@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getStudentProfileByEmail, getCourses, registerStudentToCourse } from '../../actions';
+import CheckoutModal from '@/components/CheckoutModal';
 import styles from './explore.module.css';
 
 export default function DashboardExplorePage() {
@@ -10,7 +11,7 @@ export default function DashboardExplorePage() {
   const [coursesList, setCoursesList] = useState([]);
   const [enrolledIds, setEnrolledIds] = useState([]);
   const [activeStudent, setActiveStudent] = useState(null);
-  const [registeringId, setRegisteringId] = useState(null);
+  const [checkoutCourse, setCheckoutCourse] = useState(null);
 
   const loadData = async () => {
     const email = localStorage.getItem('loggedInStudentEmail');
@@ -39,49 +40,55 @@ export default function DashboardExplorePage() {
     return () => window.removeEventListener('courseChanged', loadData);
   }, []);
 
-  const handleRegister = async (courseId, courseTitle) => {
+  const handleRegisterClick = (courseId) => {
     if (!activeStudent) {
       router.push('/auth/signin');
       return;
     }
 
-    setRegisteringId(courseId);
-    const targetCourse = coursesList.find(c => c.id === courseId) || {};
-    const amountPaid = targetCourse.price || 'Rs. 5999';
-
-    try {
-      await registerStudentToCourse(activeStudent.id, courseId, amountPaid);
-
-      // Update cached student profile with new enrolled courses
-      const cached = localStorage.getItem('studentProfile');
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          const newEnrolled = Array.from(new Set([...(parsed.enrolledCourses || []), courseId]));
-          parsed.enrolledCourses = newEnrolled;
-          localStorage.setItem('studentProfile', JSON.stringify(parsed));
-        } catch (e) {}
-      }
-
-      // Update active course selection
-      localStorage.setItem('activeCourseId', courseId.toString());
-      
-      // Dispatch events
-      window.dispatchEvent(new Event('profileChanged'));
-      window.dispatchEvent(new Event('courseChanged'));
-
-      // Direct navigate to My Courses to show the freshly added course
-      router.push('/dashboard/my-courses');
-    } catch (err) {
-      console.error(err);
-      alert('Error enrolling in cohort. Please try again.');
-    } finally {
-      setRegisteringId(null);
+    const targetCourse = coursesList.find(c => c.id === courseId);
+    if (targetCourse) {
+      setCheckoutCourse(targetCourse);
     }
+  };
+
+  const handlePaymentSuccess = () => {
+    if (!checkoutCourse) return;
+    
+    // Update cached student profile with new enrolled courses
+    const cached = localStorage.getItem('studentProfile');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        const newEnrolled = Array.from(new Set([...(parsed.enrolledCourses || []), checkoutCourse.id]));
+        parsed.enrolledCourses = newEnrolled;
+        localStorage.setItem('studentProfile', JSON.stringify(parsed));
+      } catch (e) {}
+    }
+
+    // Update active course selection
+    localStorage.setItem('activeCourseId', checkoutCourse.id.toString());
+    
+    setCheckoutCourse(null);
+    
+    // Dispatch events
+    window.dispatchEvent(new Event('profileChanged'));
+    window.dispatchEvent(new Event('courseChanged'));
+
+    // Direct navigate to My Courses to show the freshly added course
+    router.push('/dashboard/my-courses');
   };
 
   return (
     <div className={styles.exploreWrapper}>
+      {checkoutCourse && (
+        <CheckoutModal
+          course={checkoutCourse}
+          student={activeStudent}
+          onClose={() => setCheckoutCourse(null)}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
       <h2 className={styles.headerTitle}>
         Explore New Cohort Paths
       </h2>
@@ -221,10 +228,9 @@ export default function DashboardExplorePage() {
                 ) : (
                   <button 
                     className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
-                    disabled={registeringId === course.id}
-                    onClick={() => handleRegister(course.id, course.title)}
+                    onClick={() => handleRegisterClick(course.id)}
                   >
-                    {registeringId === course.id ? 'Provisioning...' : 'Enroll in Cohort'}
+                    Enroll in Cohort
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                       <polyline points="12 5 19 12 12 19"></polyline>
