@@ -31,11 +31,7 @@ export default function ForgotPasswordPage() {
   const timerRef = useRef(null);
 
   const isEmailValid = email.trim().length > 0 && email.includes('@');
-  const isResetValid =
-    code.trim().length === 6 &&
-    password.length >= 8 &&
-    confirmPassword.length >= 8 &&
-    password === confirmPassword;
+  const isResetValid = password.length >= 8 && confirmPassword.length >= 8 && password === confirmPassword;
 
   const strength = useMemo(() => getStrength(password), [password]);
 

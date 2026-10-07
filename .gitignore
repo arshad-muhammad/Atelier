@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env & secret files
 .env*
+rzp-key.csv*
 !.env.example
 *-auth-keys.json
 *auth-keys*.json

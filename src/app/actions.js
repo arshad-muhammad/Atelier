@@ -1205,17 +1205,20 @@ export async function initiateStudentLoginWithOtp(email, password) {
       return { success: false, error: "Invalid email or password. Please check your credentials and try again." };
     }
 
-    // Credentials are valid, send OTP via MojoAuth
-    const otpRes = await sendEmailOtp(cleanEmail);
-    if (!otpRes.success) {
-      return { success: false, error: otpRes.error || "Failed to send verification code. Please try again." };
-    }
+    // Credentials are valid, return student
+    const enrollments = await query("SELECT course_id FROM atelier_student_courses WHERE student_id = ?", [student.id]);
+    student.enrolledCourses = enrollments.map(e => e.course_id);
+    student.gradYear = student.grad_year;
+    delete student.grad_year;
+    student.skills = student.skills ? (Array.isArray(student.skills) ? student.skills : student.skills.split(',')) : [];
+    student.authProvider = student.auth_provider || 'credentials';
+    delete student.password;
+    delete student.reset_code;
+    delete student.reset_code_expires;
 
     return {
       success: true,
-      stateId: otpRes.state_id,
-      email: cleanEmail,
-      message: "Verification code sent to your email."
+      student: student
     };
   } catch (e) {
     console.error("initiateStudentLoginWithOtp error:", e.message);
@@ -1295,18 +1298,9 @@ export async function initiateStudentSignupWithOtp(name, email, password, phone,
       }
     }
 
-    // Send OTP via MojoAuth
-    const otpRes = await sendEmailOtp(cleanEmail);
-    if (!otpRes.success) {
-      return { success: false, error: otpRes.error || "Failed to send verification code. Please try again." };
-    }
-
-    return {
-      success: true,
-      stateId: otpRes.state_id,
-      email: cleanEmail,
-      message: "Verification code sent to your email."
-    };
+    // Register directly
+    const regRes = await registerStudentAccount(cleanName, cleanEmail, password, phone, college, gradYear);
+    return regRes;
   } catch (e) {
     console.error("initiateStudentSignupWithOtp error:", e.message);
     return { success: false, error: e.message || "Failed to process signup request." };
@@ -1576,17 +1570,12 @@ export async function requestPasswordReset(email) {
       return { success: false, error: "No account found with this email address. Please check your spelling or sign up." };
     }
 
-    // Dispatch real email OTP via MojoAuth to student's email
-    const otpRes = await sendEmailOtp(cleanEmail);
-    if (!otpRes.success) {
-      return { success: false, error: otpRes.error || "Failed to send verification code. Please try again." };
-    }
-
+    // OTP bypassed for forgot password, return success immediately
     return {
       success: true,
       email: cleanEmail,
-      stateId: otpRes.state_id,
-      message: "Verification code sent to your email address."
+      stateId: 'bypassed',
+      message: "Proceed to reset password."
     };
   } catch (e) {
     console.error("Password reset request error:", e.message);
@@ -1611,10 +1600,7 @@ export async function verifyAndResetPassword(email, code, newPassword, stateId) 
     }
 
     // Verify OTP code with MojoAuth
-    const verifyRes = await verifyEmailOtp(cleanCode, cleanStateId);
-    if (!verifyRes.success) {
-      return { success: false, error: verifyRes.error || "Invalid or expired verification code." };
-    }
+    // OTP verification bypassed
 
     const rows = await query(
       "SELECT id FROM atelier_students WHERE email = ? OR LOWER(email) = ? LIMIT 1",

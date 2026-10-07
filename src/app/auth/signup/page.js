@@ -89,11 +89,27 @@ export default function SignUpPage() {
         '2026'
       );
 
-      if (res && res.success && res.stateId) {
-        setStateId(res.stateId);
-        setStep('otp');
-        setOtp('');
-        startCountdown();
+      if (res && res.success) {
+        localStorage.setItem('loggedInStudentEmail', cleanEmail);
+        localStorage.setItem('studentProfile', JSON.stringify({
+          name: fullName,
+          email: cleanEmail,
+          phone: mobile.trim() || '',
+          college: 'Atelier Student',
+          gradYear: '2026',
+          bio: 'Aspiring Full Stack Engineer and AI enthusiast.',
+          github: '',
+          linkedin: '',
+          portfolio: '',
+          skills: ['HTML', 'CSS', 'JavaScript'],
+          avatar: null,
+          enrolledCourses: []
+        }));
+
+        window.dispatchEvent(new Event('profileChanged'));
+        window.dispatchEvent(new Event('courseChanged'));
+
+        router.push('/dashboard/onboarding');
       } else {
         setError(res?.error || 'Unable to start registration. Please check your details and try again.');
       }

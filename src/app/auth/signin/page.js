@@ -68,11 +68,28 @@ export default function SignInPage() {
     try {
       const res = await initiateStudentLoginWithOtp(email, password);
 
-      if (res && res.success && res.stateId) {
-        setStateId(res.stateId);
-        setStep('otp');
-        setOtp('');
-        startCountdown();
+      if (res && res.success && res.student) {
+        const student = res.student;
+        localStorage.setItem('loggedInStudentEmail', student.email);
+        localStorage.setItem('studentProfile', JSON.stringify({
+          name: student.name,
+          email: student.email,
+          phone: student.phone || '',
+          college: student.college || 'Atelier Student',
+          gradYear: student.gradYear || '2026',
+          bio: student.bio || 'Aspiring Full Stack Engineer and AI enthusiast.',
+          github: student.github || '',
+          linkedin: student.linkedin || '',
+          portfolio: student.portfolio || '',
+          skills: student.skills || ['HTML', 'CSS', 'JavaScript'],
+          avatar: student.avatar || null,
+          enrolledCourses: student.enrolledCourses || []
+        }));
+
+        window.dispatchEvent(new Event('profileChanged'));
+        window.dispatchEvent(new Event('courseChanged'));
+
+        router.push(redirectTo);
       } else {
         setError(res?.error || 'No account found with this email, or invalid credentials. Please check and try again.');
       }
