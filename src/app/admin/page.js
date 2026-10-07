@@ -117,16 +117,36 @@ export default function AdminConsole() {
   }, []);
 
   const loadData = async () => {
-    setStudents(await getStudents());
-    setCourses(await getCourses());
-    setSchedule(await getSchedule());
-    setMaterials(await getMaterials());
-    setCallbacks(await getCallbacks());
-    setContactInquiries(await getContactInquiries().catch(() => []));
-    setFacultyApplications(await getFacultyApplications().catch(() => []));
-    setLecturers(await getLecturers());
-    setTransactions(await getTransactions());
-    setAdminAssessments(await getAllAssessmentsAdminAction().catch(() => []));
+    try {
+      const [
+        resStudents, resCourses, resSchedule, resMaterials, resCallbacks,
+        resContact, resFaculty, resLecturers, resTransactions, resAssessments
+      ] = await Promise.all([
+        getStudents().catch(() => []),
+        getCourses().catch(() => []),
+        getSchedule().catch(() => []),
+        getMaterials().catch(() => []),
+        getCallbacks().catch(() => []),
+        getContactInquiries().catch(() => []),
+        getFacultyApplications().catch(() => []),
+        getLecturers().catch(() => []),
+        getTransactions().catch(() => []),
+        getAllAssessmentsAdminAction().catch(() => [])
+      ]);
+
+      setStudents(resStudents);
+      setCourses(resCourses);
+      setSchedule(resSchedule);
+      setMaterials(resMaterials);
+      setCallbacks(resCallbacks);
+      setContactInquiries(resContact);
+      setFacultyApplications(resFaculty);
+      setLecturers(resLecturers);
+      setTransactions(resTransactions);
+      setAdminAssessments(resAssessments);
+    } catch (e) {
+      console.error("Failed to load some data:", e);
+    }
   };
 
   // Fetch db lists
@@ -281,8 +301,8 @@ export default function AdminConsole() {
         await deleteAssessmentAdminAction(id);
       }
       
-      // Sync list
-      await loadData();
+      // Sync list in background
+      loadData();
       window.dispatchEvent(new Event('courseChanged'));
     } catch (err) {
       console.error(err);
@@ -481,10 +501,11 @@ export default function AdminConsole() {
         }
       }
 
-      // Reload database data immediately and sync
-      await loadData();
-      window.dispatchEvent(new Event('courseChanged'));
+      // Close modal instantly for better UX
       setShowModal(false);
+      // Reload database data in background
+      loadData();
+      window.dispatchEvent(new Event('courseChanged'));
     } catch (err) {
       console.error(err);
       alert("Error saving entity: " + err.message);
@@ -763,7 +784,7 @@ export default function AdminConsole() {
     try {
       await saveAssessmentAdminAction(adminAsstForm);
       setShowAdminAsstModal(false);
-      setAdminAssessments(await getAllAssessmentsAdminAction());
+      getAllAssessmentsAdminAction().then(setAdminAssessments).catch(console.error);
     } catch (err) {
       alert('Error saving assessment: ' + err.message);
     }
